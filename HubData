@@ -1,0 +1,11 @@
+local Data = {
+  ['Version'] = '[ALPHA]';
+  ['Games'] = {
+    ['3182833086'] = {
+        ['GameName'] = 'Anime Lifting Simulator';
+        ['Load'] = '';
+        ['Deprecated'] = false;
+    };
+  };
+};
+return Data;
