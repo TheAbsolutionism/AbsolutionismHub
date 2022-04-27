@@ -1,4 +1,4 @@
-local Data = {
+local HubUsage = {
   ['Version'] = '[ALPHA]';
   ['Games'] = {
     ['3182833086'] = {
@@ -8,4 +8,4 @@ local Data = {
     };
   };
 };
-return Data;
+return HubUsage;
