@@ -1,0 +1,3868 @@
+repeat wait() until game ~= nil
+repeat wait() until #game:GetChildren() > 70
+repeat wait() until game:GetService('Players') ~= nil
+repeat wait() until game:GetService('Players').LocalPlayer ~= nil
+repeat wait() until game.gameId ~= nil and game.gameId ~= 0
+if game.gameId ~= 3182833086 then return
+elseif game.gameId == 3182833086 then 
+
+local vu = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+wait(1)
+vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+end)
+local wallylibo = [===[
+    local library = {guicount = 0;
+                    settingscount = 0; 
+                    guiqueue = {};
+                    settingsqueue = {}; 
+                    callbacks = {};
+                    rainbowtable = {}; 
+                    toggled = true;
+                    binds = {};
+                    settingstoggled = false; 
+                    topcons = false;
+                    detailstoggle = true;
+                    detailslist = {};
+                    windowsshowing = {}; 
+                    shutdown = false; 
+                    connections = {};
+                    LibrarySettings = {
+                        ['Library_Details'] = true;
+                    };
+                    PlayerSettings = {};
+                    GuiReturn = {};
+
+                    makeplist = false;
+                    plist = {
+                        ['Count'] = 0;
+                        ['Places'] = {};
+                    };
+                    pliststats = nil;
+
+                    Version = '1.0.0';
+                    LibraryFileName = 'AbsolutionismWallyTutorial.dat';
+                    LibraryFile = nil;
+                    DoingTutorial = false;
+                };
+                library.NewConnection = function(NewObject,NewEvent,NewFunction,Custom)
+                    coroutine.resume(coroutine.create(function()
+                        if typeof(NewObject) ~= 'RBXScriptSignal' then
+                            local ConPreName = 'Connection: '..tostring(NewObject.Name)..'.'..tostring(NewEvent)..' - '..tostring(math.random(0,100))
+                            local ConName = ConPreName
+                            local ConCount = 0
+                            repeat 
+                                if library.connections[ConName] ~= nil then
+                                    ConCount = ConCount+1
+                                    ConName = ConPreName..' #'..tostring(ConCount)
+                                end
+                            until library.connections[ConName] == nil or wait(10)
+                            if Custom then
+                                local s = 'return game.'..tostring(NewObject:GetFullName())..':'..NewEvent..'("'..Custom..'")'
+                                local lo = loadstring(s)()
+                                library.connections[ConName] = lo:connect(NewFunction)
+                            else
+                                library.connections[ConName] = NewObject[NewEvent]:connect(NewFunction)
+                            end
+                            return library.connections[ConName]
+                        else
+                            library.connections[NewObject] = NewObject:connect(NewFunction)
+                            return library.connections[NewObject]
+                        end
+                    end))
+                end
+    local hb = game:GetService("RunService").Heartbeat
+    local defaults; do
+        local dragger = {}; do
+            local mouse        = game:GetService("Players").LocalPlayer:GetMouse();
+            local inputService = game:GetService('UserInputService');
+            local heartbeat    = game:GetService("RunService").Heartbeat;
+            -- // credits to Ririchi / Inori for this cute drag function :)
+            function dragger.new(window,queue)
+                local frame = window.object
+                local s, event = pcall(function()
+                    return frame.MouseEnter
+                end)
+        
+                if s then
+                    frame.Active = true;
+                    
+                    library.NewConnection(event,nil,function()
+                        local input = library.NewConnection(frame,'InputBegan',function(key)
+                            if key.UserInputType == Enum.UserInputType.MouseButton1 then
+                                local objectPosition = Vector2.new(mouse.X - frame.AbsolutePosition.X, mouse.Y - frame.AbsolutePosition.Y);
+                                while heartbeat:wait() and inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                                    pcall(function()
+                                        frame:TweenPosition(UDim2.new(0, mouse.X - objectPosition.X + (frame.Size.X.Offset * frame.AnchorPoint.X), 0, mouse.Y - objectPosition.Y + (frame.Size.Y.Offset * frame.AnchorPoint.Y)), 'Out', 'Linear', 0.1, true);
+                                    end)
+                                end
+                            end
+                        end)
+
+                        local leave;
+                        leave = library.NewConnection(frame,'MouseLeave',function()
+                            coroutine.resume(coroutine.create(function()
+                                input:disconnect();
+                            end))
+                            if queue then
+                                queue[window].p = frame.Position
+                            else
+                                window.p = frame.Position
+                            end
+                            coroutine.resume(coroutine.create(function()
+                                leave:disconnect();
+                            end))
+                        end)
+                    end)
+                end
+            end
+            library.GUISlide = function()
+                library.toggled = not library.toggled;
+                for i, data in next, library.guiqueue do
+                    coroutine.resume(coroutine.create(function()
+                        local pos
+                        local removed = 0
+                        if data.op == data.p then
+                            for i2,v2 in pairs(library.windowsshowing) do
+                                if i2.pos < data.pos and v2 == false then
+                                    removed = removed+1
+                                end
+                            end
+                            pos = (library.toggled and UDim2.new(0, (15 + (200 * (data.pos-removed)) - 200), 0, 0) or UDim2.new(-1, 0, -0.5,0))
+                        else
+                            pos = (library.toggled and data.p or UDim2.new(-1,0,-0.5,0))
+                        end
+                        if library.PlayerSettings['Show'..data.name] == true then
+                            data.w:TweenPosition(pos, (library.toggled and 'Out' or 'In'), 'Quad', 0.15, true)
+                            wait();
+                        end
+                    end))
+                end
+            end
+            library.SettingsSlide = function()
+                library.settingstoggled = not library.settingstoggled;
+                for i, data in next, library.settingsqueue do
+                    local pos = (library.settingstoggled and data.p or UDim2.new(-1, 0, -0.5,0))
+                    data.w:TweenPosition(pos, (library.settingstoggled and 'Out' or 'In'), 'Quad', 0.15, true)
+                    wait();
+                end
+            end
+            library.DetailToggleFunc = function()
+                if library.details then
+                    local pos = UDim2.new(0.7, -30, 0, 200)
+                    if library.details.op ~= library.details.p then
+                        pos = library.details.p
+                    end
+                    local pos = (library.PlayerSettings['Library_Details'] == true and pos or UDim2.new(-1, 0, -0.5,0))
+                    library.details.object:TweenPosition(pos, (library.toggled and 'Out' or 'In'), 'Quad', 0.15, true)
+                    wait()
+                    --library.details.object.Visible = library.PlayerSettings['Library_Details']
+                end
+            end
+            library.UpdateDetails = function(name)
+                if library.PlayerSettings['Library_Details'] == true and library.details then
+                    local getdetails = library.detailslist[name]
+                    if getdetails then
+                        library.details.container.OptionName.Text = name
+                        library.details.container.ScrollingFrame.DetailsLabel.TextSize = 18
+                        library.details.container.ScrollingFrame.DetailsLabel.Text = getdetails
+                    end
+                end
+            end
+            library.NewConnection(game:GetService('UserInputService'),'InputBegan',function(key, gpe)
+                if (not gpe) then
+                    if key.KeyCode == Enum.KeyCode.RightControl then
+                        if library.settingstoggled then
+                            library.SettingsSlide()
+                        end
+                        library.GUISlide()
+                    end
+                end
+            end)
+        end
+        
+        local types = {}; do
+            types.__index = types;
+            function types.window(name, options, container, queue, count)
+                library[count] = library[count] + 1
+                local thiscount = library[count]
+                local originalpos = UDim2.new(0, (15 + (200 * thiscount) - 200), 0, 0)
+                local pos = originalpos
+                if library.PlayerSettings['Show'..name] == false then
+                    pos = UDim2.new(-1, 0, -0.5,0)
+                else
+                    local removed = 0
+                    for i,v in pairs(library.windowsshowing) do
+                        if i.count < thiscount and v == false then
+                            removed = removed+1
+                        end
+                    end
+                    pos = UDim2.new(0, (15 + (200 * (thiscount-removed)) - 200), 0, 0)
+                end
+                local newWindow = library:Create('Frame', {
+                    Name = name;
+                    Size = UDim2.new(0, 190, 0, 30);
+                    BackgroundColor3 = options.topcolor;
+                    BorderSizePixel = 0;
+                    Parent = container;
+                    Position = pos;
+                    ZIndex = 3;
+                    library:Create('TextLabel', {
+                        Text = name;
+                        Size = UDim2.new(1, -10, 1, 0);
+                        Position = UDim2.new(0, 5, 0, 0);
+                        BackgroundTransparency = 1;
+                        Font = Enum.Font.Code;
+                        TextSize = options.titlesize;
+                        Font = options.titlefont;
+                        TextColor3 = options.titletextcolor;
+                        TextStrokeTransparency = library.options.titlestroke;
+                        TextStrokeColor3 = library.options.titlestrokecolor;
+                        ZIndex = 3;
+                    });
+                    library:Create("TextButton", {
+                        Size = UDim2.new(0, 30, 0, 30);
+                        Position = UDim2.new(1, -35, 0, 0);
+                        BackgroundTransparency = 1;
+                        Text = "-";
+                        TextSize = options.titlesize;
+                        Font = options.titlefont;--Enum.Font.Code;
+                        Name = 'window_toggle';
+                        TextColor3 = options.titletextcolor;
+                        TextStrokeTransparency = library.options.titlestroke;
+                        TextStrokeColor3 = library.options.titlestrokecolor;
+                        ZIndex = 3;
+                    });
+                    library:Create("Frame", {
+                        Name = 'Underline';
+                        Size = UDim2.new(1, 0, 0, 2);
+                        Position = UDim2.new(0, 0, 1, -2);
+                        BackgroundColor3 = (options.underlinecolor ~= "rainbow" and options.underlinecolor or Color3.new());
+                        BorderSizePixel = 0;
+                        ZIndex = 3;
+                    });
+                    library:Create('Frame', {
+                        Name = 'container';
+                        Position = UDim2.new(0, 0, 1, 0);
+                        Size = UDim2.new(1, 0, 0, 0);
+                        BorderSizePixel = 0;
+                        BackgroundColor3 = options.bgcolor;
+                        ClipsDescendants = false;
+                        library:Create('UIListLayout', {
+                            Name = 'List';
+                            SortOrder = Enum.SortOrder.LayoutOrder;
+                        })
+                    });
+                })
+                
+                if options.underlinecolor == "rainbow" then
+                    library.rainbowtable[newWindow:FindFirstChild('Underline')] = newWindow:FindFirstChild('Underline')
+                end
+    
+                local window = setmetatable({
+                    count = 0;
+                    object = newWindow;
+                    container = newWindow.container;
+                    toggled = true;
+                    name = name;
+                    flags   = {};
+                    pos = thiscount;
+    
+                }, types)
+                if library.PlayerSettings['Show'..name] == false then
+                    library.windowsshowing[window] = false
+                end
+    
+                queue[window] = {
+                    ['w'] = window.object;
+                    ['p'] = originalpos;
+                    ['op'] = originalpos;
+                    ['pos'] = thiscount;
+                    ['name'] = name;
+                }
+
+                library.NewConnection(newWindow:FindFirstChild('window_toggle'),'MouseButton1Click',function()
+                    window.toggled = not window.toggled;
+                    newWindow:FindFirstChild("window_toggle").Text = (window.toggled and "+" or "-")
+                    if (not window.toggled) then
+                        window.container.ClipsDescendants = true;
+                    end
+                    wait();
+                    local y = 0;
+                    for i, v in next, window.container:GetChildren() do
+                        if (not v:IsA('UIListLayout')) then
+                            y = y + v.AbsoluteSize.Y;
+                        end
+                    end 
+    
+                    local targetSize = window.toggled and UDim2.new(1, 0, 0, y+5) or UDim2.new(1, 0, 0, 0);
+                    local targetDirection = window.toggled and "In" or "Out"
+    
+                    window.container:TweenSize(targetSize, targetDirection, "Quad", 0.15, true)
+                    wait(.15)
+                    if window.toggled then
+                        window.container.ClipsDescendants = false;
+                    end
+                end)
+    
+                return window;
+            end
+            
+            function types:Resize(obj,def)
+                local y = 0;
+                for i, v in next, self.container:GetChildren() do
+                    if (not v:IsA('UIListLayout')) then
+                        if ((obj) and (def) and (v == obj)) then
+                            y = y+def
+                        else
+                            y = y + v.Size.Y.Offset;
+                        end
+                    end
+                end
+
+
+                if (self.sub) then
+                    self.container.Size = UDim2.new(1,0,0,y+5)
+                    if self.toggled == true then
+                        self.object.Size = UDim2.new(1,0,0,20+y)
+                        if self.sub.toggled == true then
+                            self.sub:Resize()
+                        end
+                    end
+                else
+                    if self.toggled == true then
+                        self.container.Size = UDim2.new(1,0,0,y+5)
+                    end
+                end
+                return
+            end
+            function types:Tweening(way,obj,def,tobj,tdef)
+
+                local y = 0
+                if obj then
+                    if way == 'Out' then
+                        for i,v in pairs(obj:GetChildren()) do
+                            if (not v:IsA('UIListLayout')) then
+                                if (tobj) and (v == tobj) then
+                                    y = y + tdef
+                                else
+                                    y = y+v.Size.Y.Offset
+                                end
+                            end
+                        end
+                        y = y+5
+                    elseif way == 'In' and def then
+                        y = def
+                    end
+                    obj:TweenSize(UDim2.new(1,0,0,y),way,'Quad',0.1,true)
+                end
+                if self.toggled then
+                    self:Resize(obj,y)
+                end
+                return
+            end
+            
+            function types:GetOrder() 
+                local c = 0;
+                for i, v in next, self.container:GetChildren() do
+                    if (not v:IsA('UIListLayout')) then
+                        c = c + 1
+                    end
+                end
+                return c
+            end
+            
+            function types:Label(display,rainbow)
+                local v = game:GetService'TextService':GetTextSize(display, 18, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge))
+                local object = library:Create('Frame', {
+                    Size = UDim2.new(1, 0, 0, v.Y+5);
+                    BackgroundTransparency  = 1;
+                    LayoutOrder = self:GetOrder();
+                    library:Create('TextLabel', {
+                    
+                        Position = UDim2.new(0, 10, 0, 0);
+                        Size = UDim2.new(1, 0, 1, 0);
+                        TextSize = 18;
+                        Font = Enum.Font.SourceSans;
+                        TextColor3 = Color3.fromRGB(255, 255, 255);
+                        BackgroundTransparency = 1;
+                        TextXAlignment = Enum.TextXAlignment.Left;
+                        TextWrapped = true;
+                        Text = display;
+                    });
+                    Parent = self.container;
+                })
+
+                self:Resize();
+                if rainbow then
+                    library.rainbowtable[object:FindFirstChild('TextLabel')] = object:FindFirstChild('TextLabel')
+                end
+                
+                return object:FindFirstChild('TextLabel');
+            end
+    
+            function types:Toggle(name, options, callback)
+                options = options or {}
+                local default  = options.default or false;
+                local location = options.location or self.flags;
+                local flag     = options.flag or "";
+                local tc = options.tc or nil;
+                local callback = callback or function() end;
+                local deb = options.deb or nil;
+                
+                location[flag] = default;
+    
+                local check = library:Create('Frame', {
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1, 0, 0, 25);
+                    LayoutOrder = self:GetOrder();
+                    library:Create('TextLabel', {
+                        Name = name;
+                        Text = "\r" .. name;
+                        BackgroundTransparency = 1;
+                        TextColor3 = (tc) or library.options.textcolor;
+                        Position = UDim2.new(0, 5, 0, 0);
+                        Size     = UDim2.new(1, -5, 1, 0);
+                        TextXAlignment = Enum.TextXAlignment.Left;
+                        Font = library.options.font;
+                        TextSize = library.options.fontsize;
+                        TextStrokeTransparency = library.options.textstroke;
+                        TextStrokeColor3 = library.options.strokecolor;
+                        library:Create('TextButton', {
+                            
+                            Text = (library.options.toggledisplay == 'Check' and (location[flag] and utf8.char(10003) or "") or '');
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            Name = 'Checkmark';
+                            Size = UDim2.new(0, 20, 0, 20);
+                            Position = UDim2.new(1, -25, 0, 4);
+                            TextColor3 = library.options.textcolor;
+                            BackgroundColor3 = (library.options.toggledisplay == 'Fill' and(location[flag] and Color3.fromRGB(20,148,90) or Color3.fromRGB(175,35,35)) or library.options.bgcolor);
+                            BorderColor3 = library.options.bordercolor;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                        })
+                    });
+                    Parent = self.container;
+                });
+                library.NewConnection(check,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+                local clickdeb = true
+                local function click(t)
+                    if deb == nil or (deb ~= nil and clickdeb == true) then
+                        clickdeb = false
+                        location[flag] = (not location[flag]);
+                        callback(location[flag])
+                        if library.options.toggledisplay == 'Check' then
+                            check:FindFirstChild(name).Checkmark.Text = location[flag] and utf8.char(10003) or "";
+                        elseif library.options.toggledisplay == 'Fill' then
+                            check:FindFirstChild(name).Checkmark.BackgroundColor3 = location[flag] and Color3.fromRGB(20,148,90) or Color3.fromRGB(175,35,35)
+                        end
+                        if deb ~= nil then
+                            wait(deb)
+                            clickdeb = true
+                        end
+                    end
+                end
+                library.NewConnection(check:FindFirstChild(name).Checkmark,'MouseButton1Click',click)
+                library.callbacks[flag] = click;
+    
+                if location[flag] == true then
+                    callback(location[flag])
+                end
+    
+                self:Resize();
+                return {
+                    Set = function(b)
+                        location[flag] = b;
+                        callback(location[flag])
+                        if library.options.toggledisplay == 'Check' then
+                            check:FindFirstChild(name).Checkmark.Text = location[flag] and utf8.char(10003) or "";
+                        elseif library.options.toggledisplay == 'Fill' then
+                            check:FindFirstChild(name).Checkmark.BackgroundColor3 = location[flag] and Color3.fromRGB(20,148,90) or Color3.fromRGB(175,35,35)
+                        end
+                    end
+                }
+            end
+            
+            function types:Button(name, safety, callback)
+                callback = callback or function() end;
+                safety = safety or false;
+                
+                local check = library:Create('Frame', {
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1, 0, 0, 25);
+                    LayoutOrder = self:GetOrder();
+                    library:Create('TextButton', {
+                        Name = name;
+                        Text = name;
+                        BackgroundColor3 = library.options.btncolor;
+                        BorderColor3 = library.options.bordercolor;
+                        TextStrokeTransparency = library.options.textstroke;
+                        TextStrokeColor3 = library.options.strokecolor;
+                        TextColor3 = library.options.textcolor;
+                        Position = UDim2.new(0, 5, 0, 5);
+                        Size     = UDim2.new(1, -10, 0, 20);
+                        Font = library.options.font;
+                        TextSize = library.options.fontsize;
+                    });
+                    Parent = self.container;
+                });
+                library.NewConnection(check,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(name)
+                    end
+                end)
+                local lastclick = tick()-10
+                library.NewConnection(check:FindFirstChild(name),'MouseButton1Click',function()
+                    if safety == false or (safety == true and tick()-lastclick < 0.2) then
+                        callback()
+                    elseif safety == true and tick()-lastclick >0.2 then
+                        lastclick = tick()
+                    end
+                end)
+                self:Resize();
+    
+                return check:WaitForChild(name),{
+                    Fire = function()
+                        callback();
+                    end
+                }
+            end
+            
+            function types:Box(name, options, callback) --type, default, data, location, flag)
+                options = options or {}
+                local tipe   = options.type or "";
+                local default = options.default or "";
+                local data = options.data
+                local location = options.location or self.flags;
+                local flag     = options.flag or "";
+                local callback = callback or function() end;
+                local min      = options.min or 0;
+                local max      = options.max or 9e9;
+    
+                if tipe == 'number' and tonumber(default) ~= nil then
+                    location[flag] = default;
+                else
+                    location[flag] = "";
+                    default = "";
+                end
+    
+                local check = library:Create('Frame', {
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1, 0, 0, 25);
+                    LayoutOrder = self:GetOrder();
+                    library:Create('TextLabel', {
+                        Name = name;
+                        Text = "\r" .. name;
+                        BackgroundTransparency = 1;
+                        TextColor3 = library.options.textcolor;
+                        TextStrokeTransparency = library.options.textstroke;
+                        TextStrokeColor3 = library.options.strokecolor;
+                        Position = UDim2.new(0, 5, 0, 0);
+                        Size     = UDim2.new(1, -5, 1, 0);
+                        TextXAlignment = Enum.TextXAlignment.Left;
+                        Font = library.options.font;
+                        TextSize = library.options.fontsize;
+                        library:Create('TextBox', {
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                            Text = tostring(default);
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            Name = 'Box';
+                            Size = UDim2.new(0, 60, 0, 20);
+                            Position = UDim2.new(1, -65, 0, 3);
+                            TextColor3 = library.options.textcolor;
+                            BackgroundColor3 = library.options.boxcolor;
+                            BorderColor3 = library.options.bordercolor;
+                            PlaceholderColor3 = library.options.placeholdercolor;
+                        })
+                    });
+                    Parent = self.container;
+                });
+                library.NewConnection(check,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+            
+                local box = check:FindFirstChild(name):FindFirstChild('Box');
+                library.NewConnection(box,'FocusLost',function(e)
+                    local old = location[flag];
+                    if tipe == "number" then
+                        local num = tonumber(box.Text)
+                        if (not num) then
+                            box.Text = tonumber(location[flag])
+                        else
+                            location[flag] = math.clamp(num, min, max)
+                            box.Text = tonumber(location[flag])
+                        end
+                    else
+                        location[flag] = tostring(box.Text)
+                    end
+    
+                    callback(location[flag], old, e)
+                end)
+                
+                if tipe == 'number' then
+                    library.NewConnection(box,'GetPropertyChangedSignal',function()
+                        box.Text = string.gsub(box.Text, "[%a+]", "");
+                    end,'Text')
+                end
+    
+                local function SetNew(new)
+                    if tipe == "number" then
+                        local num = tonumber(new)
+                        if (not num) then
+                            box.Text = tonumber(location[flag])
+                        else
+                            location[flag] = math.clamp(num, min, max)
+                            box.Text = tonumber(location[flag])
+                        end
+                    else
+                        location[flag] = tostring(box.Text)
+                    end
+                end
+                
+                self:Resize();
+                return {
+                    ['Box'] = box;
+                    ['SetNew'] = SetNew;
+                }
+            end
+            
+            function types:Bind(name, options, callback)
+                options = options or {}
+                local location     = options.location or self.flags;
+                local keyboardOnly = options.kbonly or false
+                local flag         = options.flag or "";
+                local callback     = callback or function() end;
+                local default      = options.default or nil;
+    
+                if keyboardOnly and (not tostring(default):find('MouseButton')) then
+                    location[flag] = default
+                end
+                
+                local banned = {
+                    Return = true;
+                    Space = true;
+                    Tab = true;
+                    Unknown = true;
+                }
+                
+                local shortNames = {
+                    RightControl = 'RightCtrl';
+                    LeftControl = 'LeftCtrl';
+                    LeftShift = 'LShift';
+                    RightShift = 'RShift';
+                    MouseButton1 = "Mouse1";
+                    MouseButton2 = "Mouse2";
+                }
+                
+                local allowed = {
+                    MouseButton1 = true;
+                    MouseButton2 = true;
+                }      
+    
+                local nm = (default and (shortNames[default.Name] or default.Name) or "None");
+                local check = library:Create('Frame', {
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1, 0, 0, 30);
+                    LayoutOrder = self:GetOrder();
+                    library:Create('TextLabel', {
+                        Name = name;
+                        Text = "\r" .. name;
+                        BackgroundTransparency = 1;
+                        TextColor3 = library.options.textcolor;
+                        Position = UDim2.new(0, 5, 0, 0);
+                        Size     = UDim2.new(1, -5, 1, 0);
+                        TextXAlignment = Enum.TextXAlignment.Left;
+                        Font = library.options.font;
+                        TextSize = library.options.fontsize;
+                        TextStrokeTransparency = library.options.textstroke;
+                        TextStrokeColor3 = library.options.strokecolor;
+                        BorderColor3     = library.options.bordercolor;
+                        BorderSizePixel  = 1;
+                        library:Create('TextButton', {
+                            Name = 'Keybind';
+                            Text = nm;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            Size = UDim2.new(0, 60, 0, 20);
+                            Position = UDim2.new(1, -65, 0, 5);
+                            TextColor3 = library.options.textcolor;
+                            BackgroundColor3 = library.options.bgcolor;
+                            BorderColor3     = library.options.bordercolor;
+                            BorderSizePixel  = 1;
+                        })
+                    });
+                    Parent = self.container;
+                });
+                library.NewConnection(check,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+                 
+                local button = check:FindFirstChild(name).Keybind;
+                library.NewConnection(button,'MouseButton1Click',function()
+                    library.binding = true
+    
+                    button.Text = "..."
+                    local a, b = game:GetService('UserInputService').InputBegan:wait();
+                    local name = tostring(a.KeyCode.Name);
+                    local typeName = tostring(a.UserInputType.Name);
+    
+                    if (a.UserInputType ~= Enum.UserInputType.Keyboard and (allowed[a.UserInputType.Name]) and (not keyboardOnly)) or (a.KeyCode and (not banned[a.KeyCode.Name])) then
+                        local name = (a.UserInputType ~= Enum.UserInputType.Keyboard and a.UserInputType.Name or a.KeyCode.Name);
+                        location[flag] = (a);
+                        button.Text = shortNames[name] or name;
+                        
+                    else
+                        if (location[flag]) then
+                            if (not pcall(function()
+                                return location[flag].UserInputType
+                            end)) then
+                                local name = tostring(location[flag])
+                                button.Text = shortNames[name] or name
+                            else
+                                local name = (location[flag].UserInputType ~= Enum.UserInputType.Keyboard and location[flag].UserInputType.Name or location[flag].KeyCode.Name);
+                                button.Text = shortNames[name] or name;
+                            end
+                        end
+                    end
+    
+                    wait(0.1)  
+                    library.binding = false;
+                end)
+                
+                if location[flag] then
+                    button.Text = shortNames[tostring(location[flag].Name)] or tostring(location[flag].Name)
+                end
+    
+                library.binds[flag] = {
+                    location = location;
+                    callback = callback;
+                };
+    
+                self:Resize();
+            end
+        
+            function types:Section(name,rainbow)
+                local order = self:GetOrder();
+                local determinedSize = UDim2.new(1, 0, 0, 25)
+                local determinedPos = UDim2.new(0, 0, 0, 4);
+                local secondarySize = UDim2.new(1, 0, 0, 20);
+                            
+                if order == 0 then
+                    determinedSize = UDim2.new(1, 0, 0, 21)
+                    determinedPos = UDim2.new(0, 0, 0, -1);
+                    secondarySize = nil
+                end
+                
+                local check = library:Create('Frame', {
+                    Name = 'Section';
+                    BackgroundTransparency = 1;
+                    Size = determinedSize;
+                    BackgroundColor3 = library.options.sectncolor;
+                    BorderSizePixel = 0;
+                    LayoutOrder = order;
+                    library:Create('TextLabel', {
+                        Name = 'section_lbl';
+                        Text = name;
+                        BackgroundTransparency = 0;
+                        BorderSizePixel = 0;
+                        BackgroundColor3 = library.options.sectncolor;
+                        TextColor3 = library.options.textcolor;
+                        Position = determinedPos;
+                        Size     = (secondarySize or UDim2.new(1, 0, 1, 0));
+                        Font = library.options.font;
+                        TextSize = library.options.fontsize;
+                        TextStrokeTransparency = library.options.textstroke;
+                        TextStrokeColor3 = library.options.strokecolor;
+                    });
+                    Parent = self.container;
+                });
+            
+                self:Resize();
+                if rainbow then
+                    library.rainbowtable[check:FindFirstChild('section_lbl')] = check:FindFirstChild('section_lbl')
+                end
+                return check:FindFirstChild('section_lbl');
+            end
+    
+            function types:Slider(name, options, callback)
+                options = options or {}
+                local default = options.default or options.min or 0;
+                local min     = options.min or 0;
+                local max      = options.max or 1;
+                local location = options.location or self.flags;
+                local precise  = options.precise  or false -- e.g 0, 1 vs 0, 0.1, 0.2, ...
+                local flag     = options.flag or "";
+                local callback = callback or function() end
+    
+                location[flag] = default;
+    
+                local check = library:Create('Frame', {
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1, 0, 0, 25);
+                    LayoutOrder = self:GetOrder();
+                    library:Create('TextLabel', {
+                        Name = name;
+                        TextStrokeTransparency = library.options.textstroke;
+                        TextStrokeColor3 = library.options.strokecolor;
+                        Text = "\r" .. name;
+                        BackgroundTransparency = 1;
+                        TextColor3 = library.options.textcolor;
+                        Position = UDim2.new(0, 5, 0, 2);
+                        Size     = UDim2.new(1, -5, 1, 0);
+                        TextXAlignment = Enum.TextXAlignment.Left;
+                        Font = library.options.font;
+                        TextSize = library.options.fontsize;
+                        library:Create('Frame', {
+                            Name = 'Container';
+                            Size = UDim2.new(0, 60, 0, 20);
+                            Position = UDim2.new(1, -65, 0, 3);
+                            BackgroundTransparency = 1;
+                            BorderColor3 = library.options.bordercolor;
+                            BorderSizePixel = 0;
+                            library:Create('TextBox', {
+                                Name = 'ValueLabel';
+                                Text = default;
+                                --BackgroundTransparency = 1;
+                                TextColor3 = library.options.textcolor;
+                                Position = UDim2.new(0, -35, 0, 0);
+                                Size     = UDim2.new(0,30,0,20);
+                                TextXAlignment = Enum.TextXAlignment.Right;
+                                Font = library.options.font;
+                                TextSize = library.options.fontsize;
+                                TextStrokeTransparency = library.options.textstroke;
+                                TextStrokeColor3 = library.options.strokecolor;
+                                BackgroundColor3 = library.options.boxcolor;
+                                BorderColor3 = library.options.bordercolor;
+                                PlaceholderColor3 = library.options.placeholdercolor;
+                            });
+                            library:Create('TextButton', {
+                                Name = 'Button';
+                                Size = UDim2.new(0, 5, 1, -2);
+                                Position = UDim2.new(0, 0, 0, 1);
+                                AutoButtonColor = false;
+                                Text = "";
+                                BackgroundColor3 = Color3.fromRGB(20, 20, 20);
+                                BorderSizePixel = 0;
+                                ZIndex = 2;
+                                TextStrokeTransparency = library.options.textstroke;
+                                TextStrokeColor3 = library.options.strokecolor;
+                            });
+                            library:Create('Frame', {
+                                Name = 'Line';
+                                BackgroundTransparency = 0;
+                                Position = UDim2.new(0, 0, 0.5, 0);
+                                Size     = UDim2.new(1, 0, 0, 1);
+                                BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+                                BorderSizePixel = 0;
+                            });
+                        })
+                    });
+                    Parent = self.container;
+                });
+                library.NewConnection(check,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+    
+                local overlay = check:FindFirstChild(name);
+
+                local box = overlay:FindFirstChild('Container'):FindFirstChild('ValueLabel');
+                library.NewConnection(box,'FocusLost',function()
+                    local old = location[flag];
+                    local num = tonumber(box.Text)
+                    if (not num) then
+                        box.Text = tonumber(location[flag])
+                    else
+                        if num < min then
+                            num = min
+                        elseif num > max then
+                            num = max
+                        end
+
+                        local percent = 1 - ((max - num) / (max - min))
+                        local number  = num 
+    
+                        number = tonumber(string.format("%.2f", number))
+                        if (not precise) then
+                            number = math.floor(number)
+                        end
+    
+                        overlay.Container.Button.Position  = UDim2.new(math.clamp(percent, 0, 0.99), 0,  0, 1) 
+                        box.Text  = number
+                        location[flag] = number
+                        callback(number)
+                    end
+                end)
+                
+                library.NewConnection(box,'GetPropertyChangedSignal',function()
+                    box.Text = string.gsub(box.Text, "[%a+]", "");
+                end,'Text')
+    
+                local renderSteppedConnection;
+                local inputBeganConnection;
+                local inputEndedConnection;
+                local mouseLeaveConnection;
+                local mouseDownConnection;
+                local mouseUpConnection;
+                
+                library.NewConnection(check:FindFirstChild(name).Container,'MouseEnter',function()
+                    local function update()
+                        if renderSteppedConnection then renderSteppedConnection:disconnect() end 
+                        
+    
+                        renderSteppedConnection = library.NewConnection(game:GetService('RunService'),'RenderStepped',function()
+                            local mouse = game:GetService("UserInputService"):GetMouseLocation()
+                            local percent = (mouse.X - overlay.Container.AbsolutePosition.X) / (overlay.Container.AbsoluteSize.X)
+                            percent = math.clamp(percent, 0, 1)
+                            percent = tonumber(string.format("%.2f", percent))
+    
+                            overlay.Container.Button.Position = UDim2.new(math.clamp(percent, 0, 0.99), 0, 0, 1)
+                            
+                            local num = min + (max - min) * percent
+                            local value = (precise and num or math.floor(num))
+    
+                            box.Text = value;
+                            callback(tonumber(value))
+                            location[flag] = tonumber(value)
+                        end)
+                    end
+    
+                    local function disconnect()
+                        if renderSteppedConnection then renderSteppedConnection:disconnect() end
+                        if inputBeganConnection then inputBeganConnection:disconnect() end
+                        if inputEndedConnection then inputEndedConnection:disconnect() end
+                        if mouseLeaveConnection then mouseLeaveConnection:disconnect() end
+                        if mouseUpConnection then mouseUpConnection:disconnect() end
+                    end
+    
+                    inputBeganConnection = library.NewConnection(check:FindFirstChild(name).Container,'InputBegan',function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                            update()
+                        end
+                    end)
+                    inputEndedConnection = library.NewConnection(check:FindFirstChild(name).Container,'InputEnded',function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                            disconnect()
+                        end
+                    end)
+                    mouseDownConnection = library.NewConnection(check:FindFirstChild(name).Container.Button,'MouseButton1Down',update)
+                    mouseUpConnection = library.NewConnection(game:GetService("UserInputService"),'InputEnded',function(a, b)
+                        if a.UserInputType == Enum.UserInputType.MouseButton1 and (mouseDownConnection.Connected) then
+                            disconnect()
+                        end
+                    end)
+                end)
+    
+                if default ~= min then
+                    if default < min then
+                        default = min
+                    elseif default > max then
+                        default = max
+                    end
+
+                    local percent = 1 - ((max - default) / (max - min))
+                    local number  = default 
+    
+                    number = tonumber(string.format("%.2f", number))
+                    if (not precise) then
+                        number = math.floor(number)
+                    end
+    
+                    overlay.Container.Button.Position  = UDim2.new(math.clamp(percent, 0, 0.99), 0,  0, 1) 
+                    box.Text  = number
+                end
+    
+                self:Resize();
+                return {
+                    Set = function(value)
+                        if value < min then
+                            value = min
+                        elseif value > max then
+                            value = max
+                        end
+
+                        local percent = 1 - ((max - value) / (max - min))
+                        local number  = value 
+    
+                        number = tonumber(string.format("%.2f", number))
+                        if (not precise) then
+                            number = math.floor(number)
+                        end
+    
+                        overlay.Container.Button.Position  = UDim2.new(math.clamp(percent, 0, 0.99), 0,  0, 1) 
+                        box.Text  = number
+                        location[flag] = number
+                        callback(number)
+                    end
+                }
+            end 
+    
+            function types:SearchBox(text, options, callback)
+                options = options or {}
+                local list = options.list or {};
+                local flag = options.flag or "";
+                local location = options.location or self.flags;
+                local callback = callback or function() end;
+    
+                local busy = false;
+                local box = library:Create('Frame', {
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1, 0, 0, 25);
+                    LayoutOrder = self:GetOrder();
+                    library:Create('TextBox', {
+                        Text = "";
+                        PlaceholderText = text;
+                        PlaceholderColor3 = Color3.fromRGB(60, 60, 60);
+                        Font = library.options.font;
+                        TextSize = library.options.fontsize;
+                        Name = 'Box';
+                        Size = UDim2.new(1, -10, 0, 20);
+                        Position = UDim2.new(0, 5, 0, 4);
+                        TextColor3 = library.options.textcolor;
+                        BackgroundColor3 = library.options.dropcolor;
+                        BorderColor3 = library.options.bordercolor;
+                        TextStrokeTransparency = library.options.textstroke;
+                        TextStrokeColor3 = library.options.strokecolor;
+                        library:Create('ScrollingFrame', {
+                            Position = UDim2.new(0, 0, 1, 1);
+                            Name = 'Container';
+                            BackgroundColor3 = library.options.btncolor;
+                            ScrollBarThickness = 0;
+                            BorderSizePixel = 0;
+                            BorderColor3 = library.options.bordercolor;
+                            Size = UDim2.new(1, 0, 0, 0);
+                            library:Create('UIListLayout', {
+                                Name = 'ListLayout';
+                                SortOrder = Enum.SortOrder.LayoutOrder;
+                            });
+                            ZIndex = 2;
+                        });
+                    });
+                    Parent = self.container;
+                })
+                library.NewConnection(box,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+    
+                local function rebuild(text)
+                    box:FindFirstChild('Box').Container.ScrollBarThickness = 0
+                    for i, child in next, box:FindFirstChild('Box').Container:GetChildren() do
+                        if (not child:IsA('UIListLayout')) then
+                            child:Destroy();
+                        end
+                    end
+    
+                    if #text > 0 then
+                        for i, v in next, list do
+                            if string.sub(string.lower(v), 1, string.len(text)) == string.lower(text) then
+                                local button = library:Create('TextButton', {
+                                    Text = v;
+                                    Font = library.options.font;
+                                    TextSize = library.options.fontsize;
+                                    TextColor3 = library.options.textcolor;
+                                    BorderColor3 = library.options.bordercolor;
+                                    TextStrokeTransparency = library.options.textstroke;
+                                    TextStrokeColor3 = library.options.strokecolor;
+                                    Parent = box:FindFirstChild('Box').Container;
+                                    Size = UDim2.new(1, 0, 0, 20);
+                                    LayoutOrder = i;
+                                    BackgroundColor3 = library.options.btncolor;
+                                    ZIndex = 2;
+                                })
+                                library.NewConnection(button,'MouseButton1Click',function()
+                                    busy = true;
+                                    box:FindFirstChild('Box').Text = button.Text;
+                                    wait();
+                                    busy = false;
+    
+                                    location[flag] = button.Text;
+                                    callback(location[flag])
+    
+                                    box:FindFirstChild('Box').Container.ScrollBarThickness = 0
+                                    for i, child in next, box:FindFirstChild('Box').Container:GetChildren() do
+                                        if (not child:IsA('UIListLayout')) then
+                                            child:Destroy();
+                                        end
+                                    end
+                                    box:FindFirstChild('Box').Container:TweenSize(UDim2.new(1, 0, 0, 0), 'Out', 'Quad', 0.25, true)
+                                end)
+                            end
+                        end
+                    end
+    
+                    local c = box:FindFirstChild('Box').Container:GetChildren()
+                    local ry = (20 * (#c)) - 20
+    
+                    local y = math.clamp((20 * (#c)) - 20, 0, 100)
+                    if ry > 100 then
+                        box:FindFirstChild('Box').Container.ScrollBarThickness = 5;
+                    end
+    
+                    box:FindFirstChild('Box').Container:TweenSize(UDim2.new(1, 0, 0, y), 'Out', 'Quad', 0.25, true)
+                    box:FindFirstChild('Box').Container.CanvasSize = UDim2.new(1, 0, 0, (20 * (#c)) - 20)
+                end
+                
+                library.NewConnection(box:FindFirstChild('Box'),'GetPropertyChangedSignal',function()
+                    if (not busy) then
+                        rebuild(box:FindFirstChild('Box').Text)
+                    end
+                end,'Text')
+    
+                local function reload(new_list)
+                    list = new_list;
+                    rebuild("")
+                end
+                self:Resize();
+                return {['Reload'] = reload;
+                    ['Box'] = box:FindFirstChild('Box');
+                }
+            end
+            
+            
+            function types:Dropdown(name, options, callback)
+                options = options or {}
+                local location = options.location or self.flags;
+                local flag = options.flag or "";
+                local callback = callback or function() end;
+                local list = options.list or {};
+                local default = options.default or list[1]
+                local colors = options.colors or {}
+    
+                location[flag] = default or list[1]
+                local check = library:Create('Frame', {
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1, 0, 0, 25);
+                    BackgroundColor3 = Color3.fromRGB(25, 25, 25);
+                    BorderSizePixel = 0;
+                    LayoutOrder = self:GetOrder();
+                    library:Create('Frame', {
+                        Name = 'dropdown_lbl';
+                        BackgroundTransparency = 0;
+                        BackgroundColor3 = library.options.dropcolor;
+                        Position = UDim2.new(0, 5, 0, 4);
+                        BorderColor3 = library.options.bordercolor;
+                        Size     = UDim2.new(1, -10, 0, 20);
+                        library:Create('TextLabel', {
+                            Name = 'Selection';
+                            Size = UDim2.new(1, 0, 1, 0);
+                            Text = location[flag];
+                            TextColor3 = colors[location[flag]] or library.options.textcolor;
+                            BackgroundTransparency = 1;
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                        });
+                        library:Create("TextButton", {
+                            Name = 'drop';
+                            BackgroundTransparency = 1;
+                            Size = UDim2.new(0, 20, 1, 0);
+                            Position = UDim2.new(1, -25, 0, 0);
+                            Text = 'v';
+                            TextColor3 = library.options.textcolor;
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                        })
+                    });
+                    Parent = self.container;
+                });
+
+                library.NewConnection(check,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+                
+                local button = check:FindFirstChild('dropdown_lbl').drop;
+                local input;
+                
+                library.NewConnection(button,'MouseButton1Click',function()
+                    if (input and input.Connected) then
+                        return
+                    end 
+                    
+                    check:FindFirstChild('dropdown_lbl'):WaitForChild('Selection').TextColor3 = Color3.fromRGB(60, 60, 60);
+                    check:FindFirstChild('dropdown_lbl'):WaitForChild('Selection').Text = name;
+                    local c = 0;
+                    for i, v in next, list do
+                        c = c + 20;
+                    end
+    
+                    local size = UDim2.new(1, 0, 0, c)
+    
+                    local clampedSize;
+                    local scrollSize = 0;
+                    if size.Y.Offset > 100 then
+                        clampedSize = UDim2.new(1, 0, 0, 100)
+                        scrollSize = 5;
+                    end
+                    
+                    local goSize = (clampedSize ~= nil and clampedSize) or size;    
+                    local container = library:Create('ScrollingFrame', {
+                        TopImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png';
+                        BottomImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png';
+                        Name = 'DropContainer';
+                        Parent = check:FindFirstChild('dropdown_lbl');
+                        Size = UDim2.new(1, 0, 0, 0);
+                        BackgroundColor3 = library.options.bgcolor;
+                        BorderColor3 = library.options.bordercolor;
+                        Position = UDim2.new(0, 0, 1, 0);
+                        ScrollBarThickness = scrollSize;
+                        CanvasSize = UDim2.new(0, 0, 0, size.Y.Offset);
+                        ZIndex = 5;
+                        ClipsDescendants = true;
+                        library:Create('UIListLayout', {
+                            Name = 'List';
+                            SortOrder = Enum.SortOrder.LayoutOrder
+                        })
+                    })
+    
+                    for i, v in next, list do
+                        local btn = library:Create('TextButton', {
+                            Size = UDim2.new(1, 0, 0, 20);
+                            BackgroundColor3 = library.options.btncolor;
+                            BorderColor3 = library.options.bordercolor;
+                            Text = v;
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            LayoutOrder = i;
+                            Parent = container;
+                            ZIndex = 5;
+                            TextColor3 = colors[v] or library.options.textcolor;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                        })
+                        library.NewConnection(btn,'MouseButton1Click',function()
+                            check:FindFirstChild('dropdown_lbl'):WaitForChild('Selection').TextColor3 = colors[v] or library.options.textcolor
+                            check:FindFirstChild('dropdown_lbl'):WaitForChild('Selection').Text = btn.Text;
+    
+                            location[flag] = tostring(btn.Text);
+                            callback(location[flag])
+    
+                            game:GetService('Debris'):AddItem(container, 0)
+                            input:disconnect();
+                        end)
+                    end
+                    
+                    container:TweenSize(goSize, 'Out', 'Quad', 0.15, true)
+                    
+                    local function isInGui(frame)
+                        local mloc = game:GetService('UserInputService'):GetMouseLocation();
+                        local mouse = Vector2.new(mloc.X, mloc.Y - 36);
+                        
+                        local x1, x2 = frame.AbsolutePosition.X, frame.AbsolutePosition.X + frame.AbsoluteSize.X;
+                        local y1, y2 = frame.AbsolutePosition.Y, frame.AbsolutePosition.Y + frame.AbsoluteSize.Y;
+                    
+                        return (mouse.X >= x1 and mouse.X <= x2) and (mouse.Y >= y1 and mouse.Y <= y2)
+                    end
+                    input = library.NewConnection(game:GetService('UserInputService'),'InputBegan',function(a)
+                        if a.UserInputType == Enum.UserInputType.MouseButton1 and (not isInGui(container)) then
+                            check:FindFirstChild('dropdown_lbl'):WaitForChild('Selection').TextColor3 = colors[location[flag]] or library.options.textcolor
+                            check:FindFirstChild('dropdown_lbl'):WaitForChild('Selection').Text       = location[flag];
+    
+                            container:TweenSize(UDim2.new(1, 0, 0, 0), 'In', 'Quad', 0.15, true)
+                            wait(0.15)
+    
+                            game:GetService('Debris'):AddItem(container, 0)
+                            input:disconnect();
+                        end
+                    end)
+                end)
+                
+                self:Resize();
+                local function reload(array,default)
+                    list = array;
+                    location[flag] = default or array[1];
+                    pcall(function()
+                        input:disconnect()
+                    end)
+                    check:WaitForChild('dropdown_lbl').Selection.Text = location[flag]
+                    check:FindFirstChild('dropdown_lbl'):WaitForChild('Selection').TextColor3 = colors[location[flag]] or library.options.textcolor
+                    game:GetService('Debris'):AddItem(container, 0)
+                end
+    
+                return {
+                    Refresh = reload;
+                }
+            end
+            function types:ListSelection(name,options,callback)
+                options = options or {}
+                local location = options.location or self.flags;
+                local flag = options.flag or "";
+                local callback = callback or function() end;
+                local list = options.list or {};
+                local default = options.default or list[1]
+                local colors = options.colors or {}
+
+                local check = library:Create('Frame', {
+                    Name = 'ListSelection';
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1,0,0,25);
+                    BackgroundColor3 = library.options.sectncolor;
+                    BorderSizePixel = 0;
+                    LayoutOrder = place or self:GetOrder();
+            
+                    library:Create('Frame',{
+                        Name = 'SectionFrame';
+                        BackgroundTransparency = 1;
+                        Position = UDim2.new(0, 5, 0, 4);
+                        Size = UDim2.new(1, -10, 0, 20);
+                        BackgroundColor3 = library.options.sectncolor;
+                        BorderSizePixel = 0;
+                    
+                        library:Create('TextLabel', {
+                            Name = 'section_lbl';
+                            Text = name;
+                            BackgroundTransparency = 0;
+                            BorderSizePixel = 0;
+                            BackgroundColor3 = library.options.sectncolor;
+                            TextColor3 = library.options.textcolor;
+                            Position = UDim2.new();
+                            Size     = UDim2.new(1, 0, 1, 0);
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                        });
+                        library:Create("TextButton", {
+                            Name = 'drop';
+                            BackgroundTransparency = 1;
+                            Size = UDim2.new(0, 20, 1, 0);
+                            Position = UDim2.new(1, -25, 0, 0);
+                            Text = 'v';
+                            TextColor3 = library.options.textcolor;
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                        });
+                    });
+                    Parent = self.container;
+                });
+                local Container = library:Create('ScrollingFrame',{
+                    TopImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png';
+                    BottomImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png';
+                    Name = 'Container';
+                    BackgroundTransparency = 0;
+                    Size = UDim2.new(1,0,0,0);
+                    Position = UDim2.new(0,0,0,25);
+                    BackgroundColor3 = library.options.sectncolor;
+                    BorderSizePixel = 0;
+                    ScrollBarThickness = 0;
+                    CanvasSize = UDim2.new(0, 0, 0, 0);
+                    ClipsDescendants = true;
+                    Visible = false;
+                    Parent = check;
+                    library:Create('UIListLayout', {
+                        Name = 'List';
+                        SortOrder = Enum.SortOrder.LayoutOrder;
+                    });
+                });
+
+                library.NewConnection(check.SectionFrame,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+
+                local themax = 10
+
+                function CreateSelections(l)
+                    local c = 25*#l
+                    Container.CanvasSize = UDim2.new(1,0,0,c)
+                    Container.Size = UDim2.new(1,0,0,c)
+                    Container.ScrollBarThickness = 0
+                    if #l > themax then
+                        local size = UDim2.new(1,0,0,c)
+                        Container.CanvasSize = UDim2.new(0,0,0,size.Y.Offset)
+                        Container.Size = UDim2.new(1,0,0,25*themax)
+                        Container.ScrollBarThickness = 5
+                    end
+                    for i,v in pairs(l) do
+                        local issel = false
+                        if table.find(location[flag],v) ~= nil then
+                            issel = true
+                        end
+                        local f = library:Create('Frame', {
+                            BackgroundTransparency = 1;
+                            Size = UDim2.new(1,0,0,25);
+                            BorderSizePixel = 0;
+                            LayoutOrder = i;
+
+                            Parent = Container;
+                        })
+                        local b = library:Create('TextButton', {
+                            BackgroundTransparency = 1;
+                            Size = UDim2.new(1,0,1,0);
+                            BorderSizePixel = 0;
+                            TextXAlignment = Enum.TextXAlignment.Left;
+                            TextColor3 = colors[v] or library.options.textcolor;
+                            TextSize = 10;
+                            Text = ' [ '..(issel == true and tostring(utf8.char(10003)) or ' ')..' ]   '..v;
+                            Parent = f;
+                        })
+                        coroutine.resume(coroutine.create(function()
+                            b.MouseButton1Down:connect(function()
+                                if issel == true then
+                                    b.Text = ' [   ]   '..v
+                                    local plc = table.find(location[flag],v)
+                                    table.remove(location[flag],plc)
+                                elseif issel == false then
+                                    b.Text = ' [ '..tostring(utf8.char(10003))..' ]  '..v
+                                    table.insert(location[flag],v)
+                                end
+                                issel = (not issel)
+                                callback(v)
+                            end)
+                        end))
+                        self:Resize();
+                    end
+                end
+                CreateSelections(list)
+                local button = check:FindFirstChild('SectionFrame').drop;
+                local input;
+                local dropped = false
+                local dropping = false
+
+                local CloseDrop = function()
+                    dropped = false
+                    self:Tweening('In',check,25)
+                    button.Text = 'v'
+                    Container.Visible = false
+                    return 
+                end
+                library.NewConnection(button,'MouseButton1Click',function()
+                    if dropping == false then
+                        dropping = true
+                        local newcheck
+                        local newcon
+                        local newy
+                        if dropped == false then
+                            dropped = true
+                            self:Tweening('Out',check)
+                            
+                            button.Text = '^'
+                            Container.Visible = true
+                        elseif dropped == true then
+                            CloseDrop()
+                        end
+                        wait()
+                        dropping = false
+                    end
+                end)
+                self:Resize();
+                return {
+                    ['Refresh'] = function(newl)
+                        local newlist = newl or list
+                        dropping = true
+                        CloseDrop()
+                        wait()
+                        Container:ClearAllChildren()
+                        CreateSelections(newlist)
+                        dropping = false
+                    end
+                };
+            end
+            function types:DropSection(name, isplist, place)
+                local check = library:Create('Frame', {
+                    Name = 'DropSection';
+                    BackgroundTransparency = 1;
+                    Size = UDim2.new(1,0,0,25);
+                    BackgroundColor3 = library.options.sectncolor;
+                    BorderSizePixel = 0;
+                    LayoutOrder = place or self:GetOrder();
+            
+                    library:Create('Frame',{
+                        Name = 'SectionFrame';
+                        BackgroundTransparency = 1;
+                        Position = UDim2.new(0, 5, 0, 4);
+                        Size = UDim2.new(1, -10, 0, 20);
+                        BackgroundColor3 = library.options.sectncolor;
+                        BorderSizePixel = 0;
+                    
+                        library:Create('TextLabel', {
+                            Name = 'section_lbl';
+                            Text = name;
+                            BackgroundTransparency = 0;
+                            BorderSizePixel = 0;
+                            BackgroundColor3 = library.options.sectncolor;
+                            TextColor3 = library.options.textcolor;
+                            Position = UDim2.new();
+                            Size     = UDim2.new(1, 0, 1, 0);
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                            TextXAlignment = (isplist == 'isplist' and Enum.TextXAlignment.Left) or nil;
+                        });
+                        library:Create("TextButton", {
+                            Name = 'drop';
+                            BackgroundTransparency = 1;
+                            Size = UDim2.new(0, 20, 1, 0);
+                            Position = UDim2.new(1, -25, 0, 0);
+                            Text = 'v';
+                            TextColor3 = library.options.textcolor;
+                            Font = library.options.font;
+                            TextSize = library.options.fontsize;
+                            TextStrokeTransparency = library.options.textstroke;
+                            TextStrokeColor3 = library.options.strokecolor;
+                        });
+                    });
+                    Parent = self.container;
+                });
+                local Container = library:Create('Frame',{
+                    Name = 'Container';
+                    BackgroundTransparency = 0;
+                    Size = UDim2.new();
+                    Position = UDim2.new(0,0,0,25);
+                    BackgroundColor3 = library.options.sectncolor;
+                    BorderSizePixel = 0;
+                    Visible = false;
+                    Parent = check;
+                    library:Create('UIListLayout', {
+                        Name = 'List';
+                        SortOrder = Enum.SortOrder.LayoutOrder;
+                    });
+                });
+
+                library.NewConnection(check.SectionFrame,'MouseEnter',function()
+                    if library.PlayerSettings['Library_Details'] == true then
+                        library.UpdateDetails(flag)
+                    end
+                end)
+                
+                local button = check:FindFirstChild('SectionFrame').drop;
+                local input;
+                local dropped = false
+                local dropping = false
+                local droptypes = types
+                droptypes.__index = droptypes
+                local Dropper = setmetatable({
+                    count = 0;
+                    object = check;
+                    container = Container;
+                    toggled = false;
+                    flags   = {};
+                    deb = true;
+                    sub = self;
+            
+                }, droptypes)
+
+                library.NewConnection(button,'MouseButton1Click',function()
+                    if dropping == false then
+                        dropping = true
+                        local newcheck
+                        local newcon
+                        local newy
+                        if Dropper.toggled == false then
+                            Dropper.toggled = true
+                        
+                            self:Tweening('Out',check)
+                            
+                            button.Text = '^'
+                            Container.Visible = true
+                            Container.ClipsDescendants = false
+                        elseif Dropper.toggled == true then
+                            Dropper.toggled = false
+
+                            Container.ClipsDescendants = true
+                            
+                            self:Tweening('In',check,25)
+                            
+                            button.Text = 'v'
+                            Container.Visible = false
+                        end
+                        
+                        wait()
+                        dropping = false
+                    end
+                end)
+                self:Resize();
+                return Dropper
+            end
+        end
+        
+        function library:Create(class, data)
+            local obj = Instance.new(class);
+            for i, v in next, data do
+                if i ~= 'Parent' then
+                    
+                    if typeof(v) == "Instance" then
+                        v.Parent = obj;
+                    else
+                        obj[i] = v
+                    end
+                end
+            end
+            
+            obj.Parent = data.Parent;
+            return obj
+        end
+        function FindButtonArea()
+            local cg = game:GetService('CoreGui')
+            local area
+            for i,v in pairs(cg:GetDescendants()) do
+                if v:IsA('Frame') and #v:GetChildren() > 0 then
+                    if v:FindFirstChild('MenuIcon') and v:FindFirstChild('ChatIcon') then
+                        area = v
+                        break
+                    end
+                end
+            end
+            return area
+        end
+        
+        function CreateTopButton()
+            local area = FindButtonArea()
+
+            library.TopButton = area:WaitForChild('MenuIcon'):Clone()
+            library.TopButton.Name = 'AbsolutionismButton'
+            library.TopButton.LayoutOrder = 3
+            local icon = library.TopButton.Background.Icon
+            local tl = library:Create('TextLabel', {
+                Size = icon.Size;
+                Position = icon.Position-UDim2.new(0.35,0,0.4,0);
+                BackgroundTransparency = 1;
+                Text = 'A';
+                TextSize = 45;
+                TextColor3 = Color3.fromRGB(255,255,255);
+                Font = Enum.Font.Cartoon;
+                Name = 'ALabel';
+                Parent = library.TopButton.Background;
+            })
+            icon:Destroy()
+            library.rainbowtable[library.TopButton.Background.ALabel] = library.TopButton.Background.ALabel
+            library.TopButton.Parent = area
+            library.detailslist['TopButton'] = 'Left Click to Show Main GUI of script \n (Hides Settings GUI if open) \n \n Right Click to show Settings GUI of library+script \n (Hides Main GUI if open)'
+            library.NewConnection(library.TopButton,'MouseEnter',function()
+                if library.PlayerSettings['Library_Details'] == true then
+                    library.UpdateDetails('TopButton')
+                end
+            end)
+        end
+
+        function library:CreateWindow(name, tupe, custom, options)
+            if (not library.ScreenGui) then
+                library.ScreenGui = self:Create("ScreenGui", {
+                    Parent = game:GetService("CoreGui");
+                });
+            end
+            if tupe == nil or tupe ~= 'settings' then
+                tupe = 'gui'
+            end
+
+            if (not library[tupe..'container']) then
+                library[tupe..'container'] = self:Create('Frame', {
+                    Name = tupe..'container';
+                    Size = UDim2.new(1, -30, 1, 0);
+                    Position = UDim2.new(0, 20, 0, 20);
+                    BackgroundTransparency = 1;
+                    Active = false;
+                    Parent = library.ScreenGui;
+                })
+            end
+            if library.topcons == false then
+                library.topcons = true
+                if (not library.TopButton) then
+                    CreateTopButton()
+                end
+                library.NewConnection(library.TopButton.Background,'MouseButton1Down',function()
+                    if library.settingstoggled then
+                        library.SettingsSlide()
+                    end
+                    library.GUISlide()
+                end)
+                library.NewConnection(library.TopButton.Background,'MouseButton2Down',function()
+                    if (library.settingscontainer) then
+                        if library.toggled then
+                            library.GUISlide()
+                        end
+                        library.SettingsSlide()
+                    end
+                end)
+            end
+            local window
+            if (not library.options) then
+                library.options = setmetatable(options or {}, {__index = defaults})
+            end
+            if (library.GuiReturn['SettingsWindowDrop']) and custom == nil then
+                local thisshow = 'Show'..name
+                if (library.GuiReturn[thisshow] == nil) then
+                    if library.PlayerSettings[thisshow] == nil then
+                        library.PlayerSettings[thisshow] = true
+                    end
+                    library.detailslist[thisshow] = 'Show and Hide '..name..' Window'
+                    library.GuiReturn[thisshow] = library.GuiReturn['SettingsWindowDrop']:Toggle('Show '..name,{['default'] = library.PlayerSettings[thisshow];['flag'] = thisshow,['location'] = library.PlayerSettings},function()
+                        coroutine.resume(coroutine.create(function()
+                            library.SaveData()
+                            library.windowsshowing[window] = library.PlayerSettings[thisshow]
+                        end))
+                    end)
+                end
+            end
+            if (library.GuiReturn['PlayerListSettings']) and library.makeplist == true and custom == 'PlayerList' then
+                local thisshow = 'Show'..name
+                if library.PlayerSettings[thisshow] == nil then
+                    library.PlayerSettings[thisshow] = true
+                end
+                if library.PlayerSettings['PlayerListRefreshRate'] == nil then
+                    library.PlayerSettings['PlayerListRefreshRate'] = 10
+                end
+                if library.PlayerSettings['PlayerListConstantRefresh'] == nil then
+                    library.PlayerSettings['PlayerListConstantRefresh'] = true
+                end
+                local showdeb = true
+                local last = library.PlayerSettings['ShowServer LB']
+                library.detailslist[thisshow] = '(De)Activate '..name..' Window \n \n While Activated it does do alot background checks, if your computer isnt stable to handle the background processes, turning this OFF will close the Server LB and shut off all background processes'
+                library.GuiReturn[thisshow] = library.GuiReturn['PlayerListSettings']:Toggle('Activate '..name,{['default'] = library.PlayerSettings[thisshow];['location'] = library.PlayerSettings;['flag'] = thisshow;['deb'] = 5},function()
+                    coroutine.resume(coroutine.create(function()
+                        last = library.PlayerSettings['ShowServer LB']
+                        library.SaveData()
+                        library.windowsshowing[window] = library.PlayerSettings[thisshow]
+                        if last == false then
+                            for i,v in pairs(library.plist) do
+                                if i ~= 'Count' and i ~= 'Places' then
+                                    coroutine.resume(coroutine.create(function()
+                                        if v.cons then
+                                            for i2,v2 in pairs(v.cons) do
+                                                coroutine.resume(coroutine.create(function()
+                                                    if v2 then
+                                                        v2:disconnect()
+                                                        v.cons[i2] = nil
+                                                    end
+                                                end))
+                                            end
+                                        end
+                                    end))
+                                    coroutine.resume(coroutine.create(function()
+                                        if v.GUI.Identifier then
+                                            v.GUI.Identifier.object:Destroy()
+                                        end
+                                    end))
+                                end
+                            end
+                            wait(1)
+                            window:Resize()
+                            library.plist = {['Count'] = 0;['Places'] = {}}
+                        elseif last == true then
+                            library.StartPlayerList()
+                        end
+                    end))
+                end)
+                library.detailslist['PlayerListRefreshRate'] = 'If Server LB is Activated (ON) the background checks default option is the constant refresh, if you turn OFF Constant Refresh, it will then use the selected number, waits every (number) and then does a refresh this way it does not put alot of stress on your PC with constant Refreshing depending on how many players are in the Server'
+                library.GuiReturn['Slider_PlayerListRefreshRate'] = library.GuiReturn['PlayerListSettings']:Slider('Refresh Rate',{['default'] = library.PlayerSettings['PlayerListRefreshRate'];['location'] = library.PlayerSettings;['flag'] = 'PlayerListRefreshRate';['min'] = 5;['max'] = 30;['precise'] = false},function()
+                    coroutine.resume(coroutine.create(function()
+                        if library.PlayerSettings[thisshow] == true then
+                            library.SaveData()
+                        end
+                    end))
+                end)
+                library.detailslist['PlayerListConstantRefresh'] = 'If Server LB is Activated (ON) this is the background checks default option, Costant Refreshing when the value the LB orders in is changed of each player \n \n If your PC is under too much stress from this process, try switching to Custom Refresh Rate or Deactivate the Server LB'
+                library.GuiReturn['Toggle_PlayerListConstantRefresh'] = library.GuiReturn['PlayerListSettings']:Toggle('Constant Refresh',{['default'] = library.PlayerSettings['PlayerListConstantRefresh'];['location'] = library.PlayerSettings;['flag'] = 'PlayerListConstantRefresh';['deb'] = 5},function()
+                    coroutine.resume(coroutine.create(function()
+                        if library.PlayerSettings[thisshow] == true then
+                            library.SaveData()
+                            library.PlayerListRefreshChange()
+                        end
+                    end))
+                end)
+            end
+            window = types.window(name, library.options, library[tupe..'container'], library[tupe..'queue'], tupe..'count');
+            dragger.new(window,library[tupe..'queue']);
+            library.settingstoggled = true
+            library.SettingsSlide()
+
+            if (library.settingscontainer) and tupe..'container' == 'settingscontainer' then
+                if (not library.GuiReturn['SettingsWindowDrop']) then
+                    library.GuiReturn['SettingsWindowDrop'] = window:DropSection('Window Settings')
+                end
+                if library.makeplist == true and (not library.GuiReturn['PlayerListSettings']) then
+                    library.GuiReturn['PlayerListSettings'] = window:DropSection('PlayerList Settings')
+                end
+                if (not library.details) then
+                    library.detailslist['Details'] = 'Show and Hide Details Window'
+                    library.GuiReturn['Toggle_Details'] = window:Toggle('Details',{['default'] = library.PlayerSettings['Library_Details'];['location'] = library.PlayerSettings;['flag'] = 'Library_Details'},function()
+                        coroutine.resume(coroutine.create(function()
+                            library.DetailToggleFunc()
+                            library.SaveData()
+                        end))
+                    end)
+                    local NewDetails = self:Create('Frame', {
+                        Name = 'detailscontainer';
+                        Size = UDim2.new(0, 190, 0, 30);
+                        BackgroundColor3 = library.options.topcolor;
+                        BorderSizePixel = 0;
+                        Parent = container;
+                        Position = (library.PlayerSettings['Library_Details'] == true and UDim2.new(0.7, -30, 0, 200) or UDim2.new(-1, 0, -0.5,0));
+                        ZIndex = 3;
+                        self:Create('TextLabel', {
+                            Text = 'Details';
+                            Size = UDim2.new(1, -10, 1, 0);
+                            Position = UDim2.new(0, 5, 0, 0);
+                            BackgroundTransparency = 1;
+                            Font = Enum.Font.Code;
+                            TextSize = library.options.titlesize;
+                            Font = library.options.titlefont;
+                            TextColor3 = library.options.titletextcolor;
+                            TextStrokeTransparency = library.options.titlestroke;
+                            TextStrokeColor3 = library.options.titlestrokecolor;
+                            ZIndex = 3;
+                        });
+                        self:Create("TextButton", {
+                            Size = UDim2.new(0, 30, 0, 30);
+                            Position = UDim2.new(1, -35, 0, 0);
+                            BackgroundTransparency = 1;
+                            Text = "-";
+                            TextSize = library.options.titlesize;
+                            Font = library.options.titlefont;--Enum.Font.Code;
+                            Name = 'window_toggle';
+                            TextColor3 = library.options.titletextcolor;
+                            TextStrokeTransparency = library.options.titlestroke;
+                            TextStrokeColor3 = library.options.titlestrokecolor;
+                            ZIndex = 3;
+                        });
+                        self:Create("Frame", {
+                            Name = 'Underline';
+                            Size = UDim2.new(1, 0, 0, 2);
+                            Position = UDim2.new(0, 0, 1, -2);
+                            BackgroundColor3 = (library.options.underlinecolor ~= "rainbow" and library.options.underlinecolor or Color3.new());
+                            BorderSizePixel = 0;
+                            ZIndex = 3;
+                        });
+                        self:Create('Frame', {
+                            Name = 'container';
+                            Position = UDim2.new(0, 0, 1, 0);
+                            Size = UDim2.new(1, 0, 0, 480);
+                            BorderSizePixel = 0;
+                            BackgroundColor3 = library.options.bgcolor;
+                            ClipsDescendants = false;
+                            self:Create('TextLabel', {
+                                Name = 'OptionName';
+                                Size = UDim2.new(1,0,0,30);
+                                BackgroundColor3 = library.options.topcolor;
+                                BorderColor3 = library.options.bordercolor;
+                                Text = '';
+                                TextColor3 = library.options.textcolor;
+                                Font = library.options.font;
+                                TextSize = library.options.fontsize;
+                                TextStrokeTransparency = library.options.textstroke;
+                                TextStrokeColor3 = library.options.strokecolor;
+                            });
+                            self:Create('ScrollingFrame', {
+                                Size = UDim2.new(1,0,0,440);
+                                Position = UDim2.new(0,0,0,40);
+                                BackgroundTransparency = 1;
+                                ClipsDescendants = true;
+                                ScrollBarThickness = 0;
+                                self:Create('TextLabel', {
+                                    Name = 'DetailsLabel';
+                                    Size = UDim2.new(1,0,1,0);
+                                    BackgroundTransparency = 1;
+                                    Text = 'Hover over any option to see information details of what it does';
+                                    TextColor3 = library.options.textcolor;
+                                    Font = library.options.font;
+                                    TextSize = library.options.fontsize;
+                                    TextStrokeTransparency = library.options.textstroke;
+                                    TextStrokeColor3 = library.options.strokecolor;
+                                    TextYAlignment = Enum.TextYAlignment.Top;
+                                    TextWrapped = true;
+                                });
+                            });
+                        });
+                        Parent = library.ScreenGui;
+                    });
+
+                    library.details = {
+                        object = check;
+                        container = NewDetails.container;
+                        toggled = true;
+                        op = UDim2.new(0.7, -30, 0, 200);
+                        p = UDim2.new(0.7, -30, 0, 200);
+                        object = NewDetails;
+                    }
+
+                    if library.options.underlinecolor == "rainbow" then
+                        library.rainbowtable[library.details.object:FindFirstChild('Underline')] = library.details.object:FindFirstChild('Underline')
+                    end
+                    library.NewConnection(library.details.object:FindFirstChild("window_toggle"),'MouseButton1Click',function()
+                        library.details.toggled = not library.details.toggled;
+                        library.details.object:FindFirstChild("window_toggle").Text = (library.details.toggled and "+" or "-")
+                        if (not library.details.toggled) then
+                            library.details.container.ClipsDescendants = true;
+                        end
+                        wait();
+                        local y = 0;
+                        for i, v in next, library.details.container:GetChildren() do
+                            if (not v:IsA('UIListLayout')) then
+                                y = y + v.AbsoluteSize.Y;
+                            end
+                        end 
+        
+                        local targetSize = library.details.toggled and UDim2.new(1, 0, 0, y+5) or UDim2.new(1, 0, 0, 0);
+                        local targetDirection = library.details.toggled and "In" or "Out"
+        
+                        library.details.container:TweenSize(targetSize, targetDirection, "Quad", 0.15, true)
+                        wait(.15)
+                        if library.details.toggled then
+                            library.details.container.ClipsDescendants = false;
+                        end
+                    end)
+                    dragger.new(library.details)
+                end
+                if (not library.resetwindows) then
+                    library.detailslist['Reset Windows Positions'] = 'Clicking this will reset all windows positions'
+                    library.resetwindows = window:Button('Reset Windows Positions',function()
+                        coroutine.resume(coroutine.create(function()
+                            for i,v in pairs(library.guiqueue) do
+                                v.p = v.op
+                            end
+                            library.details.p = library.details.op
+                        end))
+                    end)
+                end
+                if (not library.shutbutton) then
+                    library.detailslist['Shutdown'] = 'Clicking this will destroy GUI and disable all functions of script'
+                    library.shutbutton = window:Button('Shutdown',true,function()
+                        coroutine.resume(coroutine.create(function()
+                            library.SaveData()
+                            library.shutdown = true
+                            for i,v in pairs(library.PlayerSettings) do
+                                if type(v) == 'boolean' then
+                                    library.PlayerSettings[i] = false
+                                end
+                            end
+                            library.ScreenGui:Destroy()
+                            library.TopButton:Destroy()
+                            for i,v in pairs(library.connections) do
+                                coroutine.resume(coroutine.create(function()
+                                    if v and typeof(v) == 'RBXScriptSignal' then
+                                        v:disconnect()
+                                    end
+                                    if typeof(i) == 'RBXScriptSignal' then
+                                        i:disconnect()
+                                    end
+                                    if v then
+                                        v:disconnect()
+                                    end
+                                    library.connections[i] = nil
+                                end))
+                            end
+                            for i,v in pairs(library.plist) do
+                                if i ~= 'Count' and i ~= 'Places' then
+                                    coroutine.resume(coroutine.create(function()
+                                        if v.cons then
+                                            for i2,v2 in pairs(v.cons) do
+                                                coroutine.resume(coroutine.create(function()
+                                                    if v2 then
+                                                        v2:disconnect()
+                                                        v.cons[i2] = nil
+                                                    end
+                                                end))
+                                            end
+                                        end
+                                    end))
+                                end
+                            end
+                        end))
+                    end)
+                end
+            end
+            return window
+        end
+        
+        default = {
+            topcolor       = Color3.fromRGB(30, 30, 30);
+            titlecolor     = Color3.fromRGB(255, 255, 255);
+            
+            underlinecolor = Color3.fromRGB(0, 255, 140);
+            bgcolor        = Color3.fromRGB(35, 35, 35);
+            boxcolor       = Color3.fromRGB(35, 35, 35);
+            btncolor       = Color3.fromRGB(25, 25, 25);
+            dropcolor      = Color3.fromRGB(25, 25, 25);
+            sectncolor     = Color3.fromRGB(25, 25, 25);
+            bordercolor    = Color3.fromRGB(60, 60, 60);
+    
+            font           = Enum.Font.SourceSans;
+            titlefont      = Enum.Font.Code;
+    
+            fontsize       = 17;
+            titlesize      = 18;
+    
+            textstroke     = 1;
+            titlestroke    = 1;
+    
+            strokecolor    = Color3.fromRGB(0, 0, 0);
+    
+            textcolor      = Color3.fromRGB(255, 255, 255);
+            titletextcolor = Color3.fromRGB(255, 255, 255);
+    
+            placeholdercolor = Color3.fromRGB(255, 255, 255);
+            titlestrokecolor = Color3.fromRGB(0, 0, 0);
+    
+            toggledisplay = 'Fill';
+        }
+    
+        library.options = setmetatable({}, {__index = default})
+    
+        spawn(function()
+            local props = {
+                ['Frame'] = 'BackgroundColor3';
+                ['TextLabel'] = 'TextColor3';
+                ['TextButton'] = 'TextColor3';
+                ['ImageLabel'] = 'ImageColor3';
+            }
+            while true do
+                for i=0, 1, 1 / 300 do              
+                    for _, obj in next, library.rainbowtable do
+                        obj[props[obj.ClassName]] = Color3.fromHSV(i, 1, 1);
+                    end
+                    wait()
+                end;
+            end
+        end)
+    
+        local function isreallypressed(bind, inp)
+            local key = bind
+            if typeof(key) == "Instance" then
+                if key.UserInputType == Enum.UserInputType.Keyboard and inp.KeyCode == key.KeyCode then
+                    return true;
+                elseif tostring(key.UserInputType):find('MouseButton') and inp.UserInputType == key.UserInputType then
+                    return true
+                end
+            end
+            if tostring(key):find'MouseButton1' then
+                return key == inp.UserInputType
+            else
+                return key == inp.KeyCode
+            end
+        end
+        library.NewConnection(game:GetService("UserInputService"),'InputBegan',function(input)
+            if (not library.binding) then
+                for idx, binds in next, library.binds do
+                    local real_binding = binds.location[idx];
+                    if real_binding and isreallypressed(real_binding, input) then
+                        binds.callback()
+                    end
+                end
+            end
+        end)
+
+        library.CheckMainFunctions = function()
+            if (readfile) and (writefile) and (listfiles) then
+                return true
+            end
+            return false
+        end
+        library.SaveData = function()
+            if library.shutdown == true then return end
+            if library.CanSave == true and library.CheckMainFunctions() == true then
+                local function WriteNew(ins,neme,data)
+                    if ins ~= '' then
+                        neme = ins..'\\'..neme
+                    end
+                    writefile(neme,data)
+                end
+                local Http = game:GetService('HttpService')
+                local WrittenData = Http:JSONEncode(library.PlayerSettings)
+                WriteNew(library.lastpath,library.filename,WrittenData)
+            end
+            return
+        end
+        library.FindFile = function(pathway,tosave)
+            if library.CanSave == true and library.CheckMainFunctions() == true then
+                local function LookWorkspace(ins,neme,fol)
+                    local oldneme = neme
+                    if ins ~= '' then
+                        neme = ins..'\\'..neme
+                    end
+                    for i,v in pairs(listfiles(ins)) do
+                        if v == neme and ((fol and isfolder(v)) or (not fol and isfile(v))) then
+                            return v
+                        end
+                    end
+                    return nil,ins,oldneme,fol
+                end
+                local function CreateWorkspace(got,ins,neme,fol)
+                    if got then
+                        return got
+                    elseif not got then
+                        local oldneme = neme
+                        if ins ~= '' then
+                            neme = ins..'\\'..neme
+                        end
+                        if fol then
+                            makefolder(neme)
+                        else
+                            writefile(neme,'')
+                        end
+                        wait(1)
+                        return LookWorkspace(ins,oldneme,fol)
+                    end
+                end
+                
+                local lastpath = ''
+                local MainFile
+                local filename = pathway[#pathway]
+                
+                for i = 1,#pathway,1 do
+                    if i ~= #pathway then
+                        local this = CreateWorkspace(LookWorkspace(lastpath,pathway[i],true))
+                        lastpath = this
+                    elseif i == #pathway then
+                        MainFile = LookWorkspace(lastpath,filename,false)
+                    end
+                end
+                if tosave == nil or tosave == true then
+                    library.filename = filename
+                    library.lastpath = lastpath
+                    
+                    library.IsNewUser = false
+                    if MainFile == nil then
+                        library.IsNewUser = true
+                        library.SaveData()
+                        MainFile = LookWorkspace(lastpath,filename,false)
+                    end
+                    library.MainFile = MainFile
+                else
+                    local isnew = false
+                    if MainFile == nil then
+                        isnew = true
+                        local data = {
+                            ['Version'] = library.Version;
+                        }
+                        local Http = game:GetService('HttpService')
+                        local WrittenData = Http:JSONEncode(data)
+                        writefile(filename,WrittenData)
+                        MainFile = LookWorkspace(lastpath,filename,false)
+                    end
+                    return MainFile,isnew
+                end
+            end
+        end
+        library.MakeSettings = function()
+            for i,v in pairs(library.LibrarySettings) do
+                library.PlayerSettings[i] = v
+            end
+            function CheckType(i2,v2)
+                if v2['Type'] ~= 'Section' and v2['Type'] ~= 'Label' and v2['Type'] ~= 'Button' then
+                    local tbl = library.PlayerSettings
+                    if ((v2['Type'] == 'Dropdown' or v2['Type'] == 'SearchBox') and v2['IsExploit'] == true) then
+                        tbl = library.ExploitSettings
+                    end
+                    if v2['Type'] == 'Toggle' then
+                        tbl[i2] = (v2['Default']) or false
+                    elseif v2['Type'] == 'Dropdown' then
+                        tbl[i2] = v2['Default'] or ''
+                    elseif v2['Type'] == 'SearchBox' then
+                        tbl[i2] = ''
+                    elseif v2['Type'] == 'Slider' then
+                        tbl[i2] = (v2['Default']) or v2['Min']
+                    elseif v2['Type'] == 'Box' then
+                        tbl[i2] = v2['Default']
+                    elseif v2['Type'] == 'Bind' or v2['Type'] == 'BindActivate' then
+                        tbl[i2] = v2['Key']
+                    elseif v2['Type'] == 'ListSelection' then
+                        tbl[i2] = {}
+                    elseif v2['Type'] == 'DropSection' then
+                        for i3,v3 in pairs(v2['Inserts']) do
+                            if i3 ~= 'Order' and i3 ~= 'Type' then
+                                CheckType(i3,v3)
+                            end
+                        end
+                    end
+                end
+            end
+            for i,v in pairs(library.GuiSettings) do
+                if i ~= 'Order' then
+                    for i2,v2 in pairs(v) do
+                        if i2 ~= 'Order' and i2 ~= 'Type' then
+                            CheckType(i2,v2)
+                        end
+                    end
+                end
+            end
+            for i,v in pairs(library.PlayerSettings) do
+                if type(v) == 'boolean' then
+                    if library.linked[i] then
+                        local make = library.linked[i]..'Active'
+                        if library.ExploitSettings[make] == nil then
+                            library.ExploitSettings[make] = false
+                        end
+                    else
+                        library.ExploitSettings[i..'Active'] = false
+                    end
+                end
+            end
+        end
+        library.TheDo = function(A)
+            if library.DoFunctions[A] == nil then return end
+            local Ac = A..'Active'
+            if library.ExploitSettings[Ac] == true then return end
+            library.ExploitSettings[Ac] = true
+            local GetF = library.DoFunctions[A]
+            GetF(A)
+            library.ExploitSettings[Ac] = false
+        end
+        library.SetUp = function()
+            if (library.CanSave == true) and library.CheckMainFunctions() == true then
+                local Http = game:GetService('HttpService')
+                local ReadFile = readfile(library.MainFile)
+                local AllData = Http:JSONDecode(ReadFile)
+                if AllData then
+                    local SavedData = AllData
+                    local NeedsNew = false
+                    if (library.Version ~= false) then
+                        if SavedData['Version'] == nil or SavedData['Version'] ~= library.Version or library.IsNewUser == true then
+                            table.insert(library.GuiSettings.Order,'Updates')
+                            library.GuiSettings['Updates'] = {
+                                ['Order'] = {'VersionSection','VersionLabel','PrintUpdates','See1','See2','See3','See4'};
+                                ['VersionSection'] = {['Type'] = 'Section';['Text'] = 'New Version';['Rainbow'] = true;};
+                                ['VersionLabel'] = {['Type'] = 'Label';['Text'] = 'Version: '..library.Version};
+                                ['PrintUpdates'] = {['Type'] = 'Button';['Text'] = 'Print Updates'};
+                                ['See1'] = {['Type'] = 'Label';['Text'] = 'Open DevConsole (F9)'};
+                                ['See2'] = {['Type'] = 'Label';['Text'] = 'OR'};
+                                ['See3'] = {['Type'] = 'Label';['Text'] = 'InternalExecutor/Console'};
+                                ['See4'] = {['Type'] = 'Label';['Text'] = 'To see Updates'};
+                            };
+                        end
+                    end
+                    local DataFound = {}
+                    for i,v in pairs(library.PlayerSettings) do
+                        if SavedData[i] ~= nil and i ~= 'Version' then
+                            if type(v) == 'table' then
+                                for i2,v2 in pairs(SavedData[i]) do
+                                    if v[i2] == nil or (type(v2) == 'string' and (v[i2] == '' or v[i2] ~= v2)) then
+                                        v[i2] = v2
+                                    end
+                                end
+                            else
+                                library.PlayerSettings[i] = SavedData[i]
+                            end
+                            if type(SavedData[i]) == 'boolean' and SavedData[i] == true then
+                                coroutine.resume(coroutine.create(function()
+                                    if library.DoFunctions[i] then
+                                        library.TheDo(i)
+                                    elseif library.linked[i] and library.DoFunctions[library.linked[i]] then
+                                        library.TheDo(library.linked[i])
+                                    end
+                                end))
+                            end
+                            DataFound[i] = true
+                        else
+                            NeedsNew = true
+                        end
+                    end
+                    for i,v in pairs(SavedData) do
+                        if not library.PlayerSettings[i] then
+                            library.PlayerSettings[i] = v
+                        end
+                    end
+                    if NeedsNew == true then
+                        library.SaveData()
+                    end
+                else
+                    library.SaveData()
+                end
+            end
+            return
+        end
+        library.CreatePlayerList = function()
+            if (not library.WindowPList) then
+                library.WindowPList = library:CreateWindow('Server LB',nil,'PlayerList')
+            end
+            function UpdatePList()
+                local NewPList = {['Count'] = 0}
+                for i,v in pairs(library.plist) do
+                    if i ~= 'Count' then
+                        NewPList.Count = NewPList.Count + 1
+                        local place = math.huge
+                        if NewPList.Count == 1 then
+                            place = 1
+                        else
+                            for i2,v2 in pairs(NewPList) do
+                                if i2 ~= 'Count' then
+                                    if v2.place < place then
+                                        if v.OverallStat > v2.OverallStat then
+                                            place = v2.place
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        NewPList[i] = {
+                            ['Stats'] = v.Stats;
+                            ['OverallStat'] = v.OverallStat;
+                            ['GUI'] = v.GUI;
+                            ['cons'] = v.cons;
+                            ['place'] = place;
+                        };
+                        v.GUI.Identifier.object.LayoutOrder = place
+                    end
+                end
+            end
+            function GetAbr(num)
+                local Suffixes = {'', "K", "M", "B", "T", "qd", "Qn", "sx", "Sp", "oc", "N", "de" };
+                local val = num
+                local ret = val
+                for i=1, #Suffixes do
+                    if val < 10^(i*3) then
+                        ret = math.floor(val/((10^((i-1)*3))/100))/(100)..Suffixes[i]
+                        break
+                    end
+                end
+                return ret
+            end
+            function FindPlace(pl,val,place)
+                local thisplace = place
+                for i,v in pairs(library.plist) do
+                    if i ~= pl.Name and i ~= 'Count' and i ~= 'Places' and game.Players:FindFirstChild(i) then
+                        if thisplace >= v.place then
+                            if val > v.OverallStat then
+                                thisplace = v.place
+                            end
+                        end
+                    end
+                end
+                return thisplace
+            end
+            function ChangePlace(pl,way,place,last)
+                local meth = (way == true and 1) or -1
+                for i,v in pairs(library.plist) do
+                    if i ~= pl.Name and i ~= 'Count' and i ~= 'Places' and game.Players:FindFirstChild(i) then
+                        if v.place >= place then
+                            if last == nil or (last ~= nil and v.place <= last) then
+                                v.place = v.place+meth
+                                if v.GUI.Identifier ~= nil and (v.GUI.Identifier.object) then
+                                    pcall(function()
+                                        v.GUI.Identifier.object.LayoutOrder = v.place
+                                    end)
+                                end
+                            end
+                        end
+                    end
+                end
+                local count = 0
+                local highest = 0
+                for i,v in pairs(library.plist) do
+                    if i ~= 'Count' and i ~= 'Places' and game.Players:FindFirstChild(i) then
+                        count = count+1
+                        library.plist.Places[tostring(v.place)] = i
+                        if v.place > highest then
+                            highest = v.place
+                        end
+                    end
+                end
+                if count ~= highest then
+                    print('NoMatchUp')
+                end
+            end
+            function CheckStat(pl,tbl,neme,respawned)
+                local thislist = library.plist[pl.Name] 
+                local look = pl
+                local watchcharacter = false
+                local startingat = 1
+                if tbl.Path[1] == 'Character' then
+                    repeat wait() until pl.Character ~= nil or pl == nil
+                    if pl == nil then return end
+                    look = pl.Character
+                    watchcharacter = true
+                    startingat = 2
+                end
+                local last = look
+                for i2 = startingat,#tbl.Path,1 do
+                    repeat wait() until last:FindFirstChild(tbl.Path[i2]) or pl == nil
+                    if pl == nil then break end
+                    last = last:WaitForChild(tbl.Path[i2])
+                end
+                if pl == nil then return end
+                wait()
+                coroutine.resume(coroutine.create(function()
+                    if respawned == true then
+                        if thislist.cons[neme] then
+                            thislist.cons[neme]:disconnect()
+                            thislist.cons[neme] = nil
+                        end
+                        if library.PlayerSettings['PlayerListConstantRefresh'] == true then
+                            TrackStat(pl, neme, tbl, last)
+                        end
+                    end
+                end))
+                local val = (last:IsA('TextLabel') and last.Text) or last.Value
+                local oldval = val
+                if tbl and (tbl.isabr) then
+                    for i2 = 1,#tbl.abrs,1 do
+                        if pl == nil then break end
+                        local thissuf = tbl.abrs[i2]
+                        if thissuf ~= '' and thissuf ~= ' ' then
+                            local isthis = string.find(val,thissuf)
+                            if isthis then
+                                val = tonumber(string.sub(val,0,isthis-1))
+                                for i3 = 1,i2,1 do
+                                    val = val*1000
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+                if pl == nil then return end
+                if thislist and pl then
+                    thislist.Stats[neme] = {['Object'] = last;['Value'] = val}
+                end
+                if library.pliststats['Display'] and library.pliststats['Display'] == neme then
+                    if thislist.GUI.Identifier ~= nil and (thislist.GUI.Identifier.object) then
+                        local torep = 10
+                        local thisval = oldval
+                        if library.pliststats[neme]['needsabr'] then
+                            thisval = GetAbr(thisval)
+                        end
+                        local put = '['..tostring(thisval)..']'
+                        torep = torep-string.len(put)
+                        pcall(function()
+                            thislist.GUI.Identifier.object.SectionFrame.section_lbl.Text = put..string.rep('\r',torep)..pl.DisplayName
+                        end)
+                    end
+                end
+                if thislist.GUI[neme] then
+                    local thisval = oldval
+                    if library.pliststats[neme]['needsabr'] then
+                        thisval = GetAbr(thisval)
+                    end
+                    thislist.GUI[neme].Text = neme..string.rep('\r',5)..'['..tostring(thisval)..']'
+                end
+                if library.pliststats['LeadingStat'] and library.pliststats['LeadingStat'] == neme then
+                    thislist.OverallStat = val
+                    local last = thislist.place
+                    local checkplace = FindPlace(pl,val,last)
+                    if checkplace < thislist.place and last == thislist.place then
+                        thislist.place = checkplace
+                        ChangePlace(pl,true,checkplace,last)
+                    end
+                end
+                return val,watchcharacter
+            end
+            function TrackStat(pl, neme, tbl, stat)
+                local thislist = library.plist[pl.Name]
+                if library.PlayerSettings['PlayerListConstantRefresh'] == true then
+                    thislist.cons[neme] = stat.Changed:connect(function()
+                        if stat and pl then
+                            CheckStat(pl,tbl,neme)
+                        end
+                    end)
+                end
+            end
+            local TrackPlayer = function(pl)
+                if library.plist[pl.Name] ~= nil then return end
+                print('--------------')
+                print('PlayerDoing: ',pl.Name)
+                library.plist.Count = library.plist.Count+1
+                local thisplace = library.plist.Count
+                library.plist[pl.Name] = {
+                    ['Stats'] = {};
+                    ['OverallStat'] = 0;
+                    ['GUI'] = {['Identifier'] = nil;};
+                    ['cons'] = {};
+                    ['place'] = thisplace;
+                    ['player'] = pl;
+                    ['finished'] = false;
+                    ['Tracking'] = '';
+                };
+                local thislist = library.plist[pl.Name]
+                local total = 0
+                local count = 0
+                local done = 0
+                local statleading = 0
+                local watchcharacter = false
+                local characterwatches = {}
+                if library.pliststats then
+                    for i,v in pairs(library.pliststats) do
+                        if i ~= 'Display' and i ~= 'LeadingStat' then
+                            count = count+1
+                            coroutine.resume(coroutine.create(function()
+                                local val,watch = CheckStat(pl,v,i,true)
+                                total = total+val
+                                if watch == true then
+                                    characterwatches[i] = v
+                                end
+                                if library.pliststats['LeadingStat'] and library.pliststats['LeadingStat'] == i then
+                                    statleading = val
+                                end
+                                done = done+1
+                            end))
+                        end
+                    end
+                    repeat wait() until done == count or pl == nil
+                    if pl == nil then return end
+                    if watchcharacter == true then
+                        coroutine.resume(coroutine.create(function()
+                            thislist.cons['character'] = pl.CharacterAdded:connect(function()
+                                repeat wait() until pl.Character ~= nil
+                                repeat wait() until pl.Character:FindFirstChild('Humanoid') ~= nil
+                                repeat wait() until pl.Character.PrimaryPart ~= nil
+                                repeat wait() until pl:HasAppearanceLoaded() == true
+                                for i,v in pairs(characterwatches) do
+                                    CheckStat(pl,v,i,true)
+                                end
+                            end)
+                        end))
+                    end
+                    thislist.OverallStat = statleading
+                    local place = FindPlace(pl,statleading,thisplace)
+                    thislist.place = place
+                    ChangePlace(pl,true,place)
+    
+                    print('Player: ',pl.Name,' [Place] ',place)
+                end
+                if pl == nil or thislist == nil then return end
+                
+                
+                if count == 0 then
+                    thislist.GUI.Identifier = library.WindowPList:Label(pl.DisplayName)
+                else
+                    local neme = pl.DisplayName
+
+                    if library.pliststats['Display'] and thislist.Stats[library.pliststats['Display']] ~= nil then
+                        local obj = thislist.Stats[library.pliststats['Display']].Object
+                        local val = (obj:IsA('TextLabel') and obj.Text) or obj.Value
+                        if library.pliststats[library.pliststats['Display']]['needsabr'] then
+                            val = GetAbr(val)
+                        end
+                        local torep = 10
+                        local put = '['..tostring(val)..']'
+                        torep = torep-string.len(put)
+                        neme = put..string.rep('\r',torep)..pl.DisplayName
+                    end
+                    thislist.GUI.Identifier = library.WindowPList:DropSection(neme, 'isplist', thislist.place)
+                    if pl and thislist and thislist.Stats then
+                        for i,v in pairs(thislist.Stats) do
+                            local obj = v.Object
+                            local val = (obj:IsA('TextLabel') and obj.Text) or obj.Value
+                            if library.pliststats[i]['needsabr'] then
+                                val = GetAbr(val)
+                            end
+                            thislist.GUI[i] = thislist.GUI.Identifier:Label(i..string.rep('\r',5)..'['..tostring(val)..']')
+                        end
+                    end
+                end
+                thislist.finished = true
+            end
+            function RemovePlayer(pl)
+                local getlist = library.plist[pl.Name]
+                local getplace = getlist.place
+                for i,v in pairs(getlist.cons) do
+                    coroutine.resume(coroutine.create(function()
+                        if v then
+                            v:disconnect()
+                            getlist.cons[i] = nil
+                        end
+                    end))
+                end
+                if getlist.GUI.Identifier ~= nil and (getlist.GUI.Identifier.object) then
+                    getlist.GUI.Identifier.object:Destroy()
+                end
+                library.WindowPList:Resize()
+                library.plist[pl.Name] = nil
+                ChangePlace(pl,false,getplace)
+                library.plist.Count = library.plist.Count-1
+            end
+            library.NewConnection(game.Players,'PlayerAdded',function(pl)
+                if library.PlayerSettings['ShowServer LB'] == true then
+                    if library.plist[pl.Name] == nil then
+                        TrackPlayer(pl)
+                    end
+                end
+            end)
+            library.NewConnection(game.Players,'PlayerRemoving',function(pl)
+                if library.PlayerSettings['ShowServer LB'] == true then
+                    if library.plist[pl.Name] ~= nil then
+                        RemovePlayer(pl)
+                    end
+                end
+            end)
+            library.ManualRefresh = function()
+                local last = tick()
+                repeat
+                    wait()
+                    if tick()-last >= library.PlayerSettings['PlayerListRefreshRate'] then
+                        last = tick()
+                        for i,v in pairs(library.plist) do
+                            if i ~= 'Count' and i ~= 'Places' and game.Players:FindFirstChild(i) then
+                                if v.finished == true and v.Stats then
+                                    for i2,v2 in pairs(v.Stats) do
+                                        CheckStat(v.player,library.pliststats[i2],i2)
+                                    end
+                                end
+                            end
+                        end
+                        last = tick()
+                    end
+                until library.PlayerSettings['PlayerListConstantRefresh'] == true or library.PlayerSettings['ShowServer LB'] == false
+            end
+            library.PlayerListRefreshChange = function()
+                if library.PlayerSettings['PlayerListConstantRefresh'] == true then
+                    for i,v in pairs(library.plist) do
+                        if i ~= 'Count' and i ~= 'Places' and game.Players:FindFirstChild(i) then
+                            coroutine.resume(coroutine.create(function()
+                                if v.finsished == false then
+                                    repeat wait() until v.finsihed == true or v.player == nil
+                                end
+                                if v and v.player and v.Stats and v.cons then
+                                    for i2,v2 in pairs(v.Stats) do
+                                        if v.cons[i2] == nil and v2.Object then
+                                            coroutine.resume(coroutine.create(function()
+                                                TrackStat(v.player, i2, library.pliststats[i2],v2.Object)
+                                            end))
+                                        end
+                                    end
+                                end
+                            end))
+                        end
+                    end
+                elseif library.PlayerSettings['PlayerListConstantRefresh'] == false then
+                    for i,v in pairs(library.plist) do
+                        if i ~= 'Count' and i ~= 'Places' and game.Players:FindFirstChild(i) then
+                            coroutine.resume(coroutine.create(function()
+                                if v.finsished == false then
+                                    repeat wait() until v.finsihed == true or v.player == nil
+                                end
+                                if v and v.player and v.Stats and v.cons then
+                                    for i2,v2 in pairs(v.Stats) do
+                                        if v.cons[i2] ~= nil and typeof(v.cons[i2]) == 'RBXScriptConnection' then
+                                            v.cons[i2]:disconnect()
+                                            v.cons[i2] = nil
+                                        end
+                                    end
+                                end
+                            end))
+                        end
+                    end
+                    library.ManualRefresh()
+                end
+            end
+            library.StartPlayerList = function()
+                if library.PlayerSettings['ShowServer LB'] == true then
+                    for i,v in pairs(game.Players:GetChildren()) do
+                        if library.plist[v.Name] == nil and library.PlayerSettings['ShowServer LB'] == true  then
+                            TrackPlayer(v)
+                        end
+                    end
+                    library.PlayerListRefreshChange()
+                end
+            end
+            if library.PlayerSettings['ShowServer LB'] == true then
+                library.StartPlayerList()
+            end
+        end
+        library.Ready = function()
+
+            local FindTut,IsNew = library.FindFile({library.LibraryFileName},false)
+            if IsNew == true then
+
+            end
+
+
+            library:CreateWindow('Lib Settings','settings')
+
+            function ChangeSetting(Action,Reference,Val,Ret)
+                if library.shutdown == true then return end
+                coroutine.resume(coroutine.create(function()
+                    library.SaveData()
+                end))
+                if Action == 'Toggle' then
+                    if library.DoFunctions[Reference] and Val == true then
+                        library.TheDo(Reference)
+                    elseif library.linked[Reference] and library.DoFunctions[library.linked[Reference]] and Val == true then
+                        library.TheDo(library.linked[Reference])
+                    end
+                elseif Action == 'Button' then
+                    if library.DoFunctions[Reference] then
+                        library.DoFunctions[Reference](Val)
+                    elseif library.linked[Reference] and library.DoFunctions[library.linked[Reference]] then
+                        library.DoFunctions[library.linked[Reference]](Val)
+                    end
+                elseif Action == 'Search' or Action == 'Dropdown' or Action == 'Box' or Action == 'Slider' then
+                    if library.DoFunctions[Reference] then
+                        library.DoFunctions[Reference](Reference)
+                    elseif library.linked[Reference] and library.DoFunctions[library.linked[Reference]] then
+                        library.DoFunctions[library.linked[Reference]](Reference)
+                    end
+                elseif Action == 'BindActivate' then
+                    local get = string.sub(Reference,string.len('Bind')+1,string.len(Reference))
+                    if library.PlayerSettings[get] ~= nil and library.DoFunctions[Action] then
+                        library.DoFunctions[Action](Reference,get)
+                    end
+                elseif Action == 'Bind' then
+                    if library.DoFunctions[Reference] then
+                        library.DoFunctions[Reference](Reference)
+                    elseif library.linked[Reference] and library.DoFunctions[library.linked[Reference]] then
+                        library.DoFunctions[library.linked[Reference]](Reference)
+                    end
+                elseif Action == 'ListSelection' then
+                    if library.DoFunctions[Reference] then
+                        library.DoFunctions[Reference](Ret)
+                    end
+                end
+                coroutine.resume(coroutine.create(function()
+                    SaveExploitData()
+                end))
+                return
+            end
+
+            function NewOrder(Window,getall)
+                for i2,v2 in pairs(getall.Order) do
+                    local thistbl = getall[v2]
+                    local tbl = library.PlayerSettings
+                    if ((thistbl['Type'] == 'Dropdown' or thistbl['Type'] == 'SearchBox') and thistbl['IsExploit'] == true) then
+                        tbl = library.ExploitSettings
+                    end
+                    if thistbl['Type'] == 'Toggle' then
+                        library.GuiReturn['Toggle_'..v2] = Window:Toggle(thistbl['Text'],{['default'] = tbl[v2];['location'] = tbl;['flag'] = v2;['tc'] = (thistbl['Color'] or nil)},function()
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting('Toggle',v2,tbl[v2])
+                            end))
+                        end)
+                    elseif thistbl['Type'] == 'Dropdown' then
+                        library.GuiReturn['Dropdown_'..v2] = Window:Dropdown(thistbl['Text'],{['default'] = tbl[v2];['location'] = tbl;['flag'] = v2;['list'] = thistbl['List'];['colors'] = thistbl['Colors'] or nil},function()
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting('Dropdown',v2,tbl[v2])
+                            end))
+                        end)
+                    elseif thistbl['Type'] == 'Button' then
+                        library.GuiReturn['Button_'..v2] = Window:Button(thistbl['Text'],((thistbl['Safety']) or false),function()
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting('Button',v2,(thistbl['Extra'] or nil))
+                            end))
+                        end)
+                    elseif thistbl['Type'] == 'Label' then
+                        library.GuiReturn['Label_'..v2] = Window:Label(thistbl['Text'])
+                    elseif thistbl['Type'] == 'Slider' then
+                        library.GuiReturn['Slider_'..v2] = Window:Slider(thistbl['Text'],{['default'] = tbl[v2];['location'] = tbl;['flag'] = v2;['min'] = thistbl['Min'];['max'] = thistbl['Max'];['precise'] = thistbl['Precise']},function()
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting('Slider',v2,tbl[v2])
+                            end))
+                        end)
+                    elseif thistbl['Type'] == 'Section' then
+                        library.GuiReturn['Section_'..v2] = Window:Section(thistbl['Text'],thistbl['Rainbow'] or false)
+                    elseif thistbl['Type'] == 'Box' then
+                        library.GuiReturn['Box_'..v2] = Window:Box(thistbl['Text'],{['default'] = tbl[v2];['location'] = tbl;['flag'] = v2;['type'] = thistbl['Num'];['min'] = thistbl['Min'];['max'] = thistbl['Max']},function()
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting('Box',v2,tbl[v2])
+                            end))
+                        end)
+                    elseif thistbl['Type'] == 'Bind' or thistbl['Type'] == 'BindActivate' then
+                        library.GuiReturn['Bind_'..v2] = Window:Bind(thistbl['Text'],{['default'] = tbl[v2];['location'] = tbl;['flag'] = v2;['kbonly'] = thistbl['kbonly']},function()
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting(thistbl['Type'],v2,tbl[v2])
+                            end))
+                        end)
+                    elseif thistbl['Type'] == 'SearchBox' then
+                        library.GuiReturn['SearchBox_'..v2] = Window:SearchBox(thistbl['Text'],{['default'] = tbl[v2];['location'] = tbl;['flag'] = v2;['list'] = thistbl['List']},function()
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting('SearchBox',v2,tbl[v2])
+                            end))
+                        end)
+                    elseif thistbl['Type'] == 'DropSection' then
+                        library.GuiReturn['DropSection_'..v2] = Window:DropSection(thistbl['Text'])
+                        local ds = library.GuiReturn['DropSection_'..v2]
+                        NewOrder(ds,thistbl['Inserts'])
+                    elseif thistbl['Type'] == 'ListSelection' then
+                        library.GuiReturn['ListSelection_'..v2] = Window:ListSelection(thistbl['Text'],{['location'] = tbl;['flag'] = v2;['list'] = thistbl['List'];['colors'] = thistbl['Colors']},function(ret)
+                            coroutine.resume(coroutine.create(function()
+                                ChangeSetting('ListSelection',v2,tbl[v2],ret)
+                            end))
+                        end)
+                    end
+                end
+            end
+            for i,v in pairs(library.GuiSettings.Order) do
+                local getall = library.GuiSettings[v]
+                local Window 
+                if (getall['Type'] and getall['Type'] == 'Settings') then
+                    Window = library:CreateWindow(v,'settings')
+                else
+                    Window = library:CreateWindow(v)
+                end
+                NewOrder(Window,getall)
+            end
+
+            if library.makeplist == true then
+                library.CreatePlayerList()
+            end
+        end
+    end
+
+    return library
+]===]
+local library = nil
+local PersonalUsage = false
+local GetREN = getrenv()
+repeat
+    wait()
+    local succlib,errlib
+    if (wallylibo) then
+        PersonalUsage = true
+        succlib,errlib = pcall(function()
+            return loadstring(wallylibo)()
+        end)
+    else
+        PersonalUsage = false
+        succlib,errlib = pcall(function()
+            return GetREN.GuiLibrary
+        end)
+    end
+    if succlib == true then
+        library = errlib
+    end
+until library ~= nil or wait(10)
+if library == nil then
+    warn('[Library] - Failed To Load, Terminating Script')
+    return
+end
+local Exploiter = game:GetService('Players').LocalPlayer
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local Players = game:GetService('Players')
+local Http = game:GetService('HttpService')
+local hb = game:GetService("RunService").Heartbeat
+
+local Version = '1.0.0'
+local UpdateNotes = {
+    ['Version 1.0.0'] = {
+        ['Added'] = {
+            '+ Script';
+        };
+    };
+};
+
+print('[Absolutionism] - Anime Lifting Simulator [Version] '..Version)
+
+local GuiSettings = {
+    ['Order'] = {'Main','Settings','Pets','Teleports'};
+
+    ['Main'] = {
+        ['Order'] = {'AutoLift','BindAutoLift','AutoSell','SellType','ShopSection','AutoWeight','AutoChi','AutoSkill','AutoClass'};
+
+        ['AutoLift'] = {['Type'] = 'Toggle';['Text'] = 'Auto Lift'};
+        ['BindAutoLift'] = {['Type'] = 'BindActivate';['Text'] = 'Bind Auto Lift';['Key'] = Enum.KeyCode.KeypadOne;['kbonly'] = true;};
+        ['AutoSell'] = {['Type'] = 'Toggle';['Text'] = 'Auto Sell'};
+        ['SellType'] = {['Type'] = 'Dropdown';['Text'] = 'Sell Type';['Default'] = 'Full';['IsExploit'] = false;['List'] = {'Constant','Full'}};
+        ['ShopSection'] = {['Type'] = 'Section';['Text'] = 'Shop'};
+        ['AutoWeight'] = {['Type'] = 'Toggle';['Text'] = 'Buy Weights'};
+        ['AutoChi'] = {['Type'] = 'Toggle';['Text'] = 'Buy Chi';};
+        ['AutoSkill'] = {['Type'] = 'Toggle';['Text'] = 'Buy Skill';};
+        ['AutoClass'] = {['Type'] = 'Toggle';['Text'] = 'Buy Class';};
+    };
+    ['Settings'] = {
+        ['Order'] = {'SetSpawn','TPRespawn','SpawnSelect','TPSpawn','TPSafe','Section','AnchorCharacter','ModAlert'};
+
+        ['SetSpawn'] = {['Type'] = 'Button';['Text'] = 'Set Spawn'};
+        ['TPRespawn'] = {['Type'] = 'Toggle';['Text'] = 'TP Respawn'};
+        ['SpawnSelect'] = {['Type'] = 'Dropdown';['Text'] = 'SelectSpawn';['Default'] = 'SafeSpot';['IsExploit'] = false;['List'] = {'SafeSpot','Custom'}};
+        ['TPSpawn'] = {['Type'] = 'Button';['Text'] = 'TP To Spawn'};
+        ['TPSafe'] = {['Type'] = 'Button';['Text'] = 'TP To Safe Spot'};
+        ['Section'] = {['Type'] = 'Section';['Text'] = 'Detrimental'};
+        ['AnchorCharacter'] = {['Type'] = 'Toggle';['Text'] = 'Anchor Character'};
+        ['ModAlert'] = {['Type'] = 'Toggle';['Text'] = 'Mod Alert'};
+    };
+    ['Pets'] = {
+        ['Order'] = {'SelectStar','AutoBuy','BindAutoBuy','AutoEvolve','BindAutoEvolve','SellPets','SavePets','SaveEvolved','AutoDelete','BindAutoDelete'};
+
+        ['SelectStar'] = {['Type'] = 'ListSelection';['Text'] = 'Select Stars';['List'] = nil;['Colors'] = nil;};
+        ['AutoBuy'] = {['Type'] = 'Toggle';['Text'] = 'Auto Buy'};
+        ['BindAutoBuy'] = {['Type'] = 'BindActivate';['Text'] = 'Bind Auto Buy';['Key'] = Enum.KeyCode.KeypadTwo;['kbonly'] = true;};
+        ['AutoEvolve'] = {['Type'] = 'Toggle';['Text'] = 'Auto Evovle'};
+        ['BindAutoEvolve'] = {['Type'] = 'BindActivate';['Text'] = 'Bind Auto Evolve';['Key'] = Enum.KeyCode.KeypadThree;['kbonly'] = true;};
+        ['SellPets'] = {['Type'] = 'ListSelection';['Text'] = 'Sell Rarities';['List'] = nil;['Colors'] = nil;};
+        ['SavePets'] = {['Type'] = 'ListSelection';['Text'] = 'Save Pets';['List'] = nil;['Colors'] = nil;};
+        ['SaveEvolved'] = {['Type'] = 'ListSelection';['Text'] = 'Save Evolved';['List'] = nil;['Colors'] = nil;};
+        ['AutoDelete'] = {['Type'] = 'Toggle';['Text'] = 'Auto Delete'};
+        ['BindAutoDelete'] = {['Type'] = 'BindActivate';['Text'] = 'Bind Auto Delete';['Key'] = Enum.KeyCode.KeypadFour;['kbonly'] = true;};
+    };
+    ['Teleports'] = {
+        ['Order'] = {};
+    };
+};
+
+local Detailist = {
+    ['AutoLift'] = 'Turning this ON will Auto Lift for you \n \n My Version will make it look like you are actually lifting \n \n In highlight of the bug in the game, when you dont gain strength, will stop lifting for 7 seconds, then start lifting again';
+    ['AutoSell'] = 'Turning this ON will Auto Sell your strength for you, depending on selected option \n \n My Versioon you wont need to be next to the sell area \n \n If You have Infinite Chi, will not SELL automatically';
+    ['SellType'] = 'Select "Constant" to Sell every time you gain strength \n \n Select "Full" to Sell when reached full capacity';
+    ['AutoWeight'] = 'Turning this ON will Auto Buy Weights for you';
+    ['AutoChi'] = 'Turning this ON will Auto Buy Chi for you';
+    ['AutoSkill'] = 'Turning this ON will Auto Buy Skills for you';
+    ['AutoClass'] = 'Turning this ON will Auto Buy Class for you';
+
+    ['SetSpawn'] = 'Click this to (re)set spawn point';
+    ['TPRespawn'] = 'Turning this ON will TP you to spawn point set after Respawn';
+    ['TPSpawn'] = 'Click this to TP to set spawn point (if Set)';
+    ['TPSafe'] = 'Click this to TP to randomized safe spot (Automatically Generated by script)';
+    ['ModAlert'] = 'Turning this ON, when a Mod or Admin or Dev joins, will TP you to another server \n \n If turned OFF will notify you that a Mod/Admin/Dev is in the game';
+
+    ['SelectStar'] = 'Use this to select which stars you want to open';
+    ['AutoBuy'] = 'Turning this ON, will Auto Buy Pets from selected stars';
+    ['AutoEvolve'] = 'Turning This ON will AutoEvolve pets to next evolution once acquired appropraite amount of pets and Yen needed';
+    ['SellPets'] = 'Use this to select what rarities of Pets you would like to be sold in AutoDelete \n \n Checkmark = Pets with this rarity will be sold unless Saved by name and/or evolution';
+    ['SavePets'] = 'Use this to Save pets from being Sold from AutoDelete \n \n Checkmark = Pets selected will not be sold by script';
+    ['SaveEvolved'] = 'Use this to Save pets with Evolution from being sold from AutoDelete \n \n Checkmark = Pets with Evolution will not be sold by script';
+    ['AutoDelete'] = 'Turning This ON will AutoDelete pets of selected rarities, if not saved by name and/or evolution';
+}
+
+local GuiReturn = {}
+local PlayerSettings = {
+    ['Version'] = Version;
+
+    ['Spawn'] = nil;
+};
+local ExploitSettings = {};
+local PreSettings = PlayerSettings
+
+
+local linked = {};
+local MyConnections = {}
+
+-----------------NOTIFICATIONS
+local function NewButtonNotification(NotifyData)
+    game:GetService('StarterGui'):SetCore('SendNotification',{
+        Title = NotifyData['Title'] or 'Absolute Script';
+        Icon = '';
+        Text = NotifyData['Message'];
+        Duration = (NotifyData['Duration'] or 5);
+        Button1 = NotifyData['Button1'] or nil;
+        Callback = NotifyData['CallFunction'] or nil;
+    })
+    return
+end
+local function NewNotification(message,dur)
+    game:GetService('StarterGui'):SetCore('SendNotification',{
+        Title = 'Absolute ALS';
+        Icon = '';
+        Text = message;
+        Duration = (dur or 5);
+    })
+    print(message)
+    return
+end
+local function NewConnection(NewObject,NewEvent,NewFunction,Custom)
+    return library.NewConnection(NewObject,NewEvent,NewFunction,Custom)
+end
+--------------------------------------Locals Used for Functions
+local GetData = ReplicatedStorage.Events.GetData
+local DataChanged = ReplicatedStorage.Events.DataChanged
+local DeletePet = ReplicatedStorage.Events.DeletePet
+local GetUpgradeInfo = ReplicatedStorage.Events.GetUpgradeInfo
+local UpgradePet = ReplicatedStorage.Events.UpgradePet
+local Hatch = ReplicatedStorage.Events.Hatch
+local ToggleTraining = ReplicatedStorage.Events.ToggleTraining
+local Training = ReplicatedStorage.Events.Training
+local BuyWeight = ReplicatedStorage.Events.BuyWeight
+local BuyChi = ReplicatedStorage.Events.BuyChi
+local BuySkill = ReplicatedStorage.Events.BuySkill
+local BuyArea = ReplicatedStorage.Events.BuyArea
+local PromptPlayer = ReplicatedStorage.Events.PromptPlayer
+local SetCurrentArea = ReplicatedStorage.Events.SetCurrentArea
+local BuyClass = ReplicatedStorage.Events.BuyClass
+
+local PlayerData = GetData:InvokeServer()
+
+local WeightsMod = require(ReplicatedStorage.Weights)
+local AreasMod = require(ReplicatedStorage.Areas)
+local SkillsMod = require(ReplicatedStorage.Skills)
+local ChiMod = require(ReplicatedStorage.Chi)
+local ClassesMod = require(ReplicatedStorage.Classes)
+
+local OrganizedWeights = {['Count'] = 0}
+local OrganizedAreas = {}
+local OrganizedSkills = {['Count'] = 0}
+local OrganizedChi = {['Count'] = 0}
+local OrganizedClasses = {}
+
+local WeightsNeed = {}
+local ChiNeed = {}
+local SkillsNeed = {}
+local ClassOn = 0
+local ClassOnName = PlayerData.Class
+
+local function OrganizeData()
+    for i,v in pairs(WeightsMod.weights) do
+        OrganizedWeights[tostring(v.layoutOrder)] = i;
+        OrganizedWeights['Count'] = OrganizedWeights['Count']+1
+        OrganizedWeights[i] = v
+        OrganizedWeights['Best'] = i
+    end
+    for i = 1,OrganizedWeights.Count,1 do
+        local getweight = OrganizedWeights[tostring(i)]
+        if PlayerData.ownedWeights[getweight] == nil then
+            table.insert(WeightsNeed,getweight)
+        end
+    end
+    for i,v in pairs(SkillsMod.skillInfo) do
+        if v.sortLevel then
+            OrganizedSkills[tostring(v.sortLevel)] = i;
+            OrganizedSkills[i] = v
+            OrganizedSkills['Count'] = OrganizedSkills['Count']+1
+            OrganizedSkills['Best'] = i
+        end
+    end
+    for i = 1,OrganizedSkills.Count,1 do
+        local getskill = OrganizedSkills[tostring(i)]
+        if PlayerData.ownedSkills[getskill] == nil then
+            table.insert(SkillsNeed,getskill)
+        end
+    end
+    for i,v in pairs(ChiMod.chi) do
+        OrganizedChi[tostring(v.layoutOrder)] = i;
+        OrganizedChi[i] = v
+        OrganizedChi['Count'] = OrganizedChi['Count']+1
+        OrganizedChi['Best'] = i
+    end
+    for i = 1,OrganizedChi.Count,1 do
+        local getchi = OrganizedChi[tostring(i)]
+        if PlayerData.ownedChi[getchi] == nil then
+            table.insert(ChiNeed,getchi)
+        end
+    end
+end
+OrganizeData()
+
+for i,v in pairs(AreasMod.areas) do
+    OrganizedAreas[tostring(v.sortLevel)] = i;
+    OrganizedAreas[i] = v
+    GuiSettings.Teleports[i] = {['Type'] = 'Button';['Text'] = i}
+    table.insert(GuiSettings.Teleports.Order,i)
+    Detailist[i] = 'Click this to TP to "'..i..'" Without owning it'
+end
+for i,v in pairs(ClassesMod.classes) do
+    OrganizedClasses[tostring(v.layoutOrder)] = i;
+    OrganizedClasses[i] = v
+    OrganizedClasses['Best'] = i
+end
+
+local EffectFolder = game.Workspace.Effects
+local EffectsMod = Exploiter.PlayerScripts.LocalHandler.Effects
+local SkillController = require(Exploiter.PlayerScripts.LocalHandler.SkillController)
+local Skills = require(ReplicatedStorage.Skills)
+local Dispensers = require(ReplicatedStorage.Dispensers)
+local AllRarities = {}
+local RarityColors = {}
+local AllPets = {}
+local OrganizedPets = {['Count'] = 0;}
+local PetColors = {}
+local PetRarities = {}
+local PlayerPets = {}
+
+local PetList = Exploiter.PlayerGui.Main.Pages.PetInventory.Main.PetList
+
+for i,v in pairs(Dispensers.rarities) do
+    if i ~= 'Exclusive' then
+        table.insert(AllRarities,i)
+        RarityColors[i] = v.color;
+    end
+end
+for i,v in pairs(Dispensers.pets) do
+    PetRarities[v.displayName] = v.rarity
+    if v.rarity ~= 'Exclusive' then
+        PetColors[v.displayName] = RarityColors[v.rarity]
+        OrganizedPets.Count = OrganizedPets.Count+1
+        if OrganizedPets.Count == 1 then
+            OrganizedPets['1'] = v;
+        else
+            local Place = OrganizedPets.Count
+            for i2 = 1,OrganizedPets.Count-1,1 do
+                local ThisPet = OrganizedPets[tostring(i2)]
+                if v.multi < ThisPet.multi then
+                    Place = i2
+                    break
+                end
+            end
+            if Place ~= OrganizedPets.Count then
+                for i2 = OrganizedPets.Count-1,Place,-1 do 
+                    OrganizedPets[tostring(i2+1)] = OrganizedPets[tostring(i2)]
+                    OrganizedPets[tostring(i2)] = nil
+                end
+            end
+            OrganizedPets[tostring(Place)] = v
+        end
+    end
+end
+for i = 1,OrganizedPets.Count,1 do
+    table.insert(AllPets,OrganizedPets[tostring(i)].displayName)
+end
+
+local AllStars = {}
+local StarConverts = {}
+for i,v in pairs(game.Workspace.Areas:GetChildren()) do
+    if v:FindFirstChild('Dispensers') then
+        for i2,v2 in pairs(v.Dispensers:GetChildren()) do
+            if string.find(v2.Name,'Dispenser') and not string.find(v2.Name,'Super') then
+                local converted = string.sub(v2.Name,0,string.find(v2.Name,'Dispenser',0,true)-1)
+                table.insert(AllStars,converted)
+                StarConverts[converted] = v2.Name
+                break
+            end
+        end
+    end
+end
+
+local EvolveUpgrades = {}
+local EvolveNeeded = {}
+local EvolvePrice = {}
+local AllEvolves = {}
+for i,v in pairs(Exploiter.PlayerGui.Main.Pages:GetChildren()) do
+    if string.find(v.Name,'PetMaker') then
+        local upg = string.sub(v.Name,0,string.find(v.Name,'PetMaker',0,true)-1)
+        table.insert(AllEvolves,upg)
+    end
+end
+for i,v in pairs(AllEvolves) do
+    local GetUpg = GetUpgradeInfo:InvokeServer(v)
+    if GetUpg then
+        local need = (GetUpg.upgradeNeeded) or ''
+        EvolveUpgrades[need] = v
+        EvolveNeeded[need] = GetUpg.numPets
+        EvolvePrice[need] = GetUpg.price
+    end
+end
+
+
+
+local function UpdatePets()
+    local NewPets = {}
+    for i,v in pairs(PlayerData['pets']) do
+        local Upgrade = ''
+        if string.find(i,'Shiny') then
+            Upgrade = 'Shiny'
+        elseif string.find(i,'Radioactive') then
+            Upgrade = 'Radioactive'
+        elseif string.find(i,'Abyss') then
+            Upgrade = 'Abyss'
+        end
+        local cname = v.petName..Upgrade
+        if not NewPets[cname] then
+            NewPets[cname] = {
+                ['Count'] = 0;
+                ['Upgrade'] = Upgrade;
+                ['IDs'] = {};
+            };
+        end
+        NewPets[cname].Count = NewPets[cname].Count+1
+        NewPets[cname]['IDs'][i] = i
+    end
+    PlayerPets = NewPets
+end
+UpdatePets()
+
+local ReplicatedData = Exploiter.PlayerScripts.LocalHandler.ReplicatedData
+local ReplicatedMod = require(ReplicatedData)
+local ChangedEvent = ReplicatedData.ChangedEvent
+
+NewConnection(DataChanged,'OnClientEvent',function(p10,p11,p12)
+    PlayerData = p12
+    local a1 = p10
+    local a2
+    local a3 = p11
+    if type(a1) == 'table' then
+        if a1[1] == 'pets' then
+            local petid = a1[2]
+            a2 = PlayerData['pets'][petid]
+            local petName
+            if a2 and a2['petName'] then
+                petName = a2['petName']
+            elseif a3 and a3['petName'] then
+                petName = a3['petName']
+            end
+            if petName == nil then return end
+            local Upgrade = ''
+            if string.find(petid,'Shiny') then
+                Upgrade = 'Shiny'
+            elseif string.find(petid,'Radioactive') then
+                Upgrade = 'Radioactive'
+            elseif string.find(petid,'Abyss') then
+                Upgrade = 'Abyss'
+            end
+            local cname = petName..Upgrade
+
+            local safe = false
+            local ThisRarity = PetRarities[petName]
+            if ThisRarity ~= 'Exclusive' then
+                if table.find(PlayerSettings['SellPets'],ThisRarity) then
+                    safe = false
+                else
+                    safe = true 
+                end
+                if table.find(PlayerSettings['SavePets'],petName) then
+                    safe = true
+                end
+                if Upgrade and table.find(PlayerSettings['SaveEvolved'],Upgrade) then
+                    safe = true
+                end
+            elseif ThisRarity == 'Exclusive' then
+                safe = true
+            end
+            if PlayerSettings['AutoDelete'] == false then
+                safe = true
+            end
+            
+            if PlayerData['pets'][petid] then
+                if safe == false then
+                    DeletePet:FireServer({petid})
+                    return
+                end
+
+                if safe == true then
+                    if not PlayerPets[cname] then
+                        PlayerPets[cname] = {
+                            ['Count'] = 0;
+                            ['Upgrade'] = Upgrade;
+                            ['IDs'] = {};
+                        };
+                    end
+                    PlayerPets[cname].Count = PlayerPets[cname].Count+1
+                    PlayerPets[cname]['IDs'][petid] = petid
+
+                    if PlayerSettings['AutoEvolve'] == true then
+                        if EvolveUpgrades[Upgrade] then
+                            if PlayerData.Yen >= EvolvePrice[Upgrade] then
+                                if ((PlayerPets[cname].Count) >= EvolveNeeded[Upgrade]) then
+                                    local TheseIDs = {}
+                                    local count = 0
+                                    for i2,v2 in pairs(PlayerPets[cname]['IDs']) do
+                                        count = count+1
+                                        table.insert(TheseIDs,v2)
+                                        if count >= EvolveNeeded[Upgrade] then
+                                            break
+                                        end
+                                    end
+                                    local orig = PlayerPets[cname].Count
+                                    UpgradePet:FireServer(TheseIDs,EvolveUpgrades[Upgrade])
+                                    repeat wait() until (PlayerPets[cname]['Count'] < orig) or wait(5) or PlayerSettings['AutoEvolve'] == false
+                                end
+                            end
+                        end
+                    end
+
+                end
+            elseif PlayerData['pets'][petid] == nil then
+                if PlayerPets[cname] then
+                    if PlayerPets[cname]['IDs'][petid] then
+                        PlayerPets[cname].Count -= 1
+                        PlayerPets[cname]['IDs'][petid] = nil
+                    end
+                end
+            end
+        end
+    end
+end)
+
+local SellPart = game.workspace.Areas.Valley.Pads.Sell.Part
+
+local MPS = game:GetService('MarketplaceService')
+local HasTriple = MPS:UserOwnsGamePassAsync(Exploiter.userId,26900073)
+local HasFast = MPS:UserOwnsGamePassAsync(Exploiter.userId,26656887)
+local HasInfinite = MPS:UserOwnsGamePassAsync(Exploiter.userId,26899955)
+
+local Rebirthing = false
+
+local RoleWatch = {'Owner','Developer','Contributor'}
+local function ChangeServer()
+    game:GetService('TeleportService'):Teleport(game.placeId)
+end
+
+--[[
+    Valley - -22.6255, -40.7653, -16.2374
+Tundra - -22.6255, -40.7653, 4983.76
+Underworld - -22.6255, -40.7653, 9983.76
+Wasteland - -22.6255, -40.7653, 14983.8
+]]
+
+local SafeFolder = Instance.new('Folder',workspace)
+SafeFolder.Name = 'SafeFolder'
+local SafeSpot = Instance.new('Part')
+SafeSpot.Anchored = true
+SafeSpot.Size = Vector3.new(1000,20,1000)
+SafeSpot.Position = Vector3.new(math.random(-2000,2000),math.random(-400,-300),math.random(-2000,20000))
+SafeSpot.Parent = SafeFolder
+for i = 1,10,1 do
+    local SafeLayer = SafeSpot:Clone()
+    SafeLayer.Position = SafeLayer.Position-Vector3.new(0,(10*i),0)
+    SafeLayer.Parent = SafeFolder
+end
+
+NewConnection(Exploiter,'CharacterAdded',function()
+    repeat wait() until Exploiter.Character ~= nil
+    repeat wait() until Exploiter.Character:FindFirstChild('Humanoid') ~= nil
+    repeat wait() until Exploiter.Character.PrimaryPart ~= nil
+    if PlayerSettings['AnchorCharacter'] == true then
+        Exploiter.Character.PrimaryPart.Anchored = true
+    end
+end)
+
+-----------------------CHAT
+local AbsoluteProfiles = {
+    ['Absolutionism'] = true;
+    ['NoobMLG420420'] = true;
+};
+local SendMessRE = ReplicatedStorage:WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest')
+local function TrackAbsolute(Abs)
+    local neme = Abs.Name
+    local con
+    con = NewConnection(Abs,'Chatted',function(message)
+        local findperm = string.sub(message,1,1)
+        if findperm == ';' then
+            local rest = string.sub(message,2)
+            if rest == 'itheabsolutionistcalluponthee' then
+                SendMessRE:FireServer('And Thou We Shall Respond My Lord!','All')
+            end
+        end
+    end)
+    repeat wait() until Abs == nil or Players:FindFirstChild(neme) == nil
+    con:disconnect()
+    con = nil
+end
+coroutine.resume(coroutine.create(function()
+    NewConnection(Players,'PlayerAdded',function(pl)
+        if AbsoluteProfiles[pl.Name] and not AbsoluteProfiles[Exploiter.Name] then
+            SendMessRE:FireServer('Welcome My Lord!','All')
+            TrackAbsolute(pl)
+        else
+
+            local PlRole = pl:GetRoleInGroup(4886976)
+            if table.find(RoleWatch,PlRole) then
+                if PlayerSettings['ModAlert'] == true then
+                    NewNotification('['..pl.Name..'] - ('..PlRole..') Has Joined The Game, TPing to new Server')
+                    wait(2)
+                    ChangeServer()
+                else
+                    NewNotification('['..pl.Name..'] - ('..PlRole..') Has Joined The Game, Disable script to not get caught')
+                end
+            end
+        end
+    end)
+    for i,v in pairs(Players:GetChildren()) do
+        if AbsoluteProfiles[v.Name] and not AbsoluteProfiles[Exploiter.Name] then
+            SendMessRE:FireServer('I Am Here My Lord!','All')
+            TrackAbsolute(v)
+        else
+            local PlRole = v:GetRoleInGroup(4886976)
+            if table.find(RoleWatch,PlRole) then
+                NewNotification('['..v.Name..'] - ('..PlRole..') Is In The Game, Disable script to not get caught')
+            end
+        end
+    end
+end))
+----------------------------------------------------- FUNCTIONS
+
+local DoLinks = {}
+local DoFunctions = {};
+
+
+DoFunctions['AutoLift'] = function(A)
+    SkillController.toggleAnimation("LiftIdle", true);
+    local getinfo = Skills.getTrainingInfo('Lift')
+    local count = 0
+    local laststre = PlayerData.Strength
+    while wait() do
+        if PlayerSettings[A] == false then break end
+        if count >= 20 then
+            count = 0
+            ToggleTraining:FireServer()
+            wait()
+        end
+        if EffectFolder:FindFirstChild(Exploiter.Name..'Weight') == nil then
+            ToggleTraining:FireServer('Lift')
+        end
+        local ttime = getinfo.trainTime
+        if HasFast then
+            ttime = ttime * 0.5
+        end
+        if PlayerData.Strength < OrganizedChi[PlayerData.curChi].capacity or HasInfinite == true then
+            count = count+1
+            Training:FireServer('Lift')
+            SkillController.toggleAnimation("Lift", true, nil, SkillController.getAnimTrack("Lift").Length / ttime);
+            wait(ttime)
+            if PlayerData.Strength == laststre then
+                local st = tick()
+                repeat wait() until tick()-st >= 7 or PlayerSettings[A] == false
+            end
+            laststre = PlayerData.Strength
+        end
+        if PlayerSettings['AutoSell'] == true then
+            if (PlayerSettings['SellType'] == 'Constant' or (PlayerSettings['SellType'] == 'Full' and PlayerData.Strength >= OrganizedChi[PlayerData.curChi].capacity)) and PlayerData.settingInfo.sellOnTouch == true and Exploiter.Character and Exploiter.Character.PrimaryPart then
+                coroutine.resume(coroutine.create(function()
+                    print('Selling')
+                    firetouchinterest(Exploiter.Character.PrimaryPart,SellPart,0)
+                    wait()
+                    firetouchinterest(Exploiter.Character.PrimaryPart,SellPart,1)
+                end))
+            end 
+        end
+    end
+    if EffectFolder:FindFirstChild(Exploiter.Name..'Weight') then
+        ToggleTraining:FireServer()
+    end
+    SkillController.toggleAnimation("LiftIdle", false);
+end
+DoFunctions['AutoWeight'] = function(A)
+    if Rebirthing == true then
+        GuiReturn['Toggle_'..A].Set(false)
+        return
+    end
+    while wait() do
+        if PlayerSettings[A] == false then break end
+        if #WeightsNeed > 0 then
+            local WeightName = WeightsNeed[1]
+            if PlayerData.ownedWeights[WeightName] == nil and WeightName ~= nil then
+                local ThisWeight = OrganizedWeights[WeightName]
+                if PlayerData.ownedAreas[ThisWeight.area] == false or PlayerData.ownedAreas[ThisWeight.area] == nil then
+                    repeat hb:wait() until PlayerData.Yen >= AreasMod.areas[ThisWeight.area].unlockCost or PlayerSettings[A] == false or wait(5)
+                    if PlayerData.Yen >= AreasMod.areas[ThisWeight.area].unlockCost then
+                        BuyArea:FireServer(ThisWeight.area)
+                        repeat hb:wait() until Exploiter.PlayerGui.Main.Pages:FindFirstChild('BuyArea') ~= nil
+                        local ba = Exploiter.PlayerGui.Main.Pages:FindFirstChild('BuyArea')
+                        repeat hb:wait() until ba:FindFirstChild('Main') ~= nil
+                        repeat hb:wait() until ba.Main:FindFirstChild('Yes') ~= nil
+                        local yes = ba.Main.Yes
+                        for i,v in pairs(getconnections(yes.MouseButton1Click)) do
+                            v:Fire()
+                        end
+                        repeat hb:wait() until PlayerData.ownedAreas[ThisWeight.area] == true or PlayerSettings[A] == false or wait(5)
+                        if PlayerSettings[A] == false then break end
+                    end
+                end
+                if PlayerData.ownedAreas[ThisWeight.area] == true then
+                    repeat hb:wait() until PlayerData.Yen >= ThisWeight.price or PlayerSettings[A] == false
+                    if PlayerSettings[A] == false then break end
+                    if PlayerData.Yen >= ThisWeight.price then
+                        BuyWeight:FireServer(WeightName)
+                        
+                        repeat hb:wait() until PlayerData.ownedWeights[WeightName] == true or PlayerSettings[A] == false or wait(5)
+                        if PlayerData.ownedWeights[WeightName] == true then
+                            table.remove(WeightsNeed,table.find(WeightsNeed,WeightName))
+                        end
+                    end
+                end
+            else
+                if WeightName ~= nil then
+                    table.remove(WeightsNeed,table.find(WeightsNeed,WeightName))
+                else
+                    table.remove(WeightsNeed,1)
+                end
+            end
+        else
+            if ClassOnName == OrganizedClasses['Best'] then
+                GuiReturn['Toggle_'..A].Set(false)
+                NewNotification('Already Own All Weights')
+            end
+        end
+    end
+end
+DoFunctions['AutoChi'] = function(A)
+    if Rebirthing == true then
+        GuiReturn['Toggle_'..A].Set(false)
+        return
+    end
+    while wait() do
+        if PlayerSettings[A] == false then break end
+        if #ChiNeed > 0 then
+            local ChiName = ChiNeed[1]
+            if PlayerData.ownedChi[ChiName] == nil then
+                local ThisChi = OrganizedChi[ChiName]
+                local has = false
+                repeat 
+                    hb:wait()
+                    if PlayerData and ThisChi and ThisChi.price ~= nil then
+                        if PlayerData.Yen >= ThisChi.price then
+                            has = true
+                        end
+                    end
+                until has == true or PlayerSettings[A] == false
+                if has == true then
+                    BuyChi:FireServer(ChiName)
+                    repeat hb:wait() until PlayerData.ownedChi[ChiName] == true or PlayerSettings[A] == false or wait(5)
+                    if PlayerData.ownedChi[ChiName] == true then
+                        table.remove(ChiNeed,table.find(ChiNeed,ChiName))
+                    end
+                end
+            else
+                if ChiName ~= nil then
+                    table.remove(ChiNeed,table.find(ChiNeed,ChiName))
+                else
+                    table.remove(ChiNeed,1)
+                end
+            end
+        else
+            if ClassOnName == OrganizedClasses['Best'] then
+                GuiReturn['Toggle_'..A].Set(false)
+                NewNotification('Already Own All Chi')
+            end
+        end
+    end
+end
+DoFunctions['AutoSkill'] = function(A)
+    if Rebirthing == true then
+        GuiReturn['Toggle_'..A].Set(false)
+        return
+    end
+    while wait() do
+        if PlayerSettings[A] == false then break end
+        if #SkillsNeed > 0 then
+            local SkillName = SkillsNeed[1]
+            if PlayerData.ownedSkills[SkillName] == nil then
+                local ThisSkill = OrganizedSkills[SkillName]
+                local has = false
+                repeat 
+                    hb:wait()
+                    if PlayerData and ThisSkill then
+                        if PlayerData.Yen >= ThisSkill.price then
+                            has = true
+                        end
+                    end
+                until has == true or PlayerSettings[A] == false
+                if has == true then
+                    BuySkill:FireServer(SkillName)
+                    repeat hb:wait() until PlayerData.ownedSkills[SkillName] == true or PlayerSettings[A] == false or wait(5)
+                    if PlayerData.ownedSkills[SkillName] == true then
+                        table.remove(SkillsNeed,table.find(SkillsNeed,SkillName))
+                    end
+                end
+            else
+                if SkillName ~= nil then
+                    table.remove(SkillsNeed,table.find(SkillsNeed,SkillName))
+                else
+                    table.remove(SkillsNeed,1)
+                end
+            end
+        else
+            if ClassOnName == OrganizedClasses['Best'] then
+                GuiReturn['Toggle_'..A].Set(false)
+                NewNotification('Already Own All Skills')
+            end
+        end
+    end
+end
+DoFunctions['AutoClass'] = function(A)
+    while wait() do
+        if PlayerSettings[A] == false then break end
+        if ClassOnName ~= OrganizedClasses['Best'] then
+            local ClassName = OrganizedClasses[tostring(OrganizedClasses[ClassOnName].layoutOrder+1)]
+            local GetNextClass = OrganizedClasses[ClassName]
+            local has = false
+            repeat 
+                hb:wait()
+                if PlayerData and GetNextClass and GetNextClass.price then
+                    if PlayerData.Yen >= GetNextClass.price then
+                        has = true
+                    end
+                end
+            until has == true or PlayerSettings[A] == false
+            if has == true then
+                print('Buying Class: ',ClassName)
+                local orig = Exploiter.Character.PrimaryPart.CFrame
+                BuyClass:FireServer(ClassName)
+                repeat hb:wait() until Exploiter.PlayerGui.Main.Pages:FindFirstChild('BuyClass') ~= nil or wait(3)
+                local ba = Exploiter.PlayerGui.Main.Pages:FindFirstChild('BuyClass')
+                if ba then
+                    repeat hb:wait() until ba:FindFirstChild('Main') ~= nil
+                    repeat hb:wait() until ba.Main:FindFirstChild('Yes') ~= nil
+                    local yes = ba.Main.Yes
+                    for i,v in pairs(getconnections(yes.MouseButton1Click)) do
+                        v:Fire()
+                    end
+                    repeat hb:wait() until PlayerData.ownedClasses[ClassName] == true or PlayerSettings[A] == false or wait(5)
+                    if PlayerData.ownedClasses[ClassName] == true then
+                        Rebirthing = true
+                        Exploiter.Character.PrimaryPart.CFrame = orig
+                        local Weight = PlayerSettings['AutoWeight']
+                        local Chi = PlayerSettings['AutoChi']
+                        local Skill = PlayerSettings['AutoSkill']
+                        GuiReturn['Toggle_AutoWeight'].Set(false)
+                        GuiReturn['Toggle_AutoChi'].Set(false)
+                        GuiReturn['Toggle_AutoSkill'].Set(false)
+                        WeightsNeed = {['Count'] = 0}
+                        ChiNeed = {['Count'] = 0}
+                        SkillsNeed = {['Count'] = 0}
+                        OrganizeData()
+                        ClassOnName = ClassName
+                        wait(2)
+                        Rebirthing = false
+                        GuiReturn['Toggle_AutoWeight'].Set(Weight)
+                        GuiReturn['Toggle_AutoChi'].Set(Chi)
+                        GuiReturn['Toggle_AutoSkill'].Set(Skill)
+                        Exploiter.Character.PrimaryPart.CFrame = orig
+                    end
+                end
+            end
+        else
+            GuiReturn['Toggle_'..A].Set(false)
+            NewNotification('Already Own Best Class')
+        end
+    end
+end
+DoFunctions['AutoBuy'] = function(A)
+    while wait() do
+        if PlayerSettings[A] == false then break end
+        for i,v in pairs(PlayerSettings['SelectStar']) do
+            if PlayerSettings[A] == false then break end
+            local start = tick()
+            if PlayerData.Yen >= Dispensers.dispensers[StarConverts[v]].price then
+                if HasTriple then
+                    Hatch:FireServer(StarConverts[v],true)
+                else
+                    Hatch:FireServer(StarConverts[v])
+                end
+                repeat wait(1) until tick()-start >= 5 or PlayerSettings[A] == false
+            end
+        end
+    end
+end
+
+
+DoFunctions['AutoDelete'] = function(A)
+    for i,v in pairs(PlayerData['pets']) do
+        if PlayerSettings[A] == false then break end
+        local safe = false
+        local ThisRarity = PetRarities[v.petName]
+        if ThisRarity ~= 'Exclusive' then
+            if table.find(PlayerSettings['SellPets'],ThisRarity) then
+                safe = false
+            else
+                safe = true 
+            end
+            if table.find(PlayerSettings['SavePets'],v.petName) then
+                safe = true
+            end
+            if v.upgraded and table.find(PlayerSettings['SaveEvolved'],v.upgraded) then
+                safe = true
+            end
+            if safe == false then
+                DeletePet:FireServer({i})
+            end
+        end
+    end
+end
+DoFunctions['AutoEvolve'] = function(A)
+    for i,v in pairs(PlayerPets) do
+        if PlayerSettings[A] == false then break end
+        local upg = v.Upgrade
+        if EvolveUpgrades[upg] then
+            if PlayerData.Yen >= EvolvePrice[upg] then
+                if ((v.Count) >= EvolveNeeded[upg]) then
+                    local TheseIDs = {}
+                    local count = 0
+                    for i2,v2 in pairs(v.IDs) do
+                        count = count+1
+                        table.insert(TheseIDs,v2)
+                        if count >= EvolveNeeded[upg] then
+                            break
+                        end
+                    end
+                    local orig = v.Count
+                    UpgradePet:FireServer(TheseIDs,EvolveUpgrades[upg])
+                    repeat wait() until (PlayerPets[i]) and (PlayerPets[i]['Count'] < orig) or wait(5) or PlayerSettings[A] == false
+                    break
+                end
+            end
+        end
+    end
+end
+DoFunctions['SellPets'] = function(Ret)
+    if PlayerSettings['AutoDelete'] == true then
+        DoFunctions['AutoDelete']('AutoDelete')
+    end
+end
+
+DoFunctions['SetSpawn'] = function()
+    if Exploiter.Character and Exploiter.Character.Humanoid then
+        local cf = Exploiter.Character:GetPrimaryPartCFrame()
+        local put = {
+            ['X'] = cf.X;
+            ['Y'] = cf.Y;
+            ['Z'] = cf.Z;
+            ['X1'] = cf.RightVector.X;
+            ['Y1'] = cf.UpVector.X;
+            ['Z1'] = -(cf.lookVector.X);
+            ['X2'] = cf.RightVector.Y;
+            ['Y2'] = cf.UpVector.Y;
+            ['Z2'] = -(cf.lookVector.Y);
+            ['X3'] = cf.RightVector.Z;
+            ['Y3'] = cf.UpVector.Z;
+            ['Z3'] = -(cf.lookVector.Z);
+        }
+        PlayerSettings['Spawn'] = put
+    end
+end
+DoFunctions['TPSpawn'] = function()
+    if PlayerSettings['Spawn'] then
+        local pos = PlayerSettings['Spawn']
+        local goingto = CFrame.new(pos.X,pos.Y,pos.Z, pos.X1,pos.Y1,pos.Z1, pos.X2,pos.Y2,pos.Z2, pos.X3,pos.Y3,pos.Z3)
+        local usingcust = true
+        if Exploiter.Character ~= nil and Exploiter.Character.PrimaryPart ~= nil and goingto ~= nil then
+            Exploiter.Character:SetPrimaryPartCFrame(goingto*CFrame.new(0,Exploiter.Character.Humanoid.HipHeight,0))
+        end
+    end
+end
+DoFunctions['TPSafe'] = function()
+    Exploiter.Character:SetPrimaryPartCFrame(CFrame.new(SafeSpot.Position)*CFrame.new(0,Exploiter.Character.Humanoid.HipHeight,0))
+end
+DoFunctions['TPRespawn'] = function(A)
+    local con = NewConnection(Exploiter,'CharacterAdded',function()
+        repeat wait() until Exploiter.Character ~= nil
+        repeat wait() until Exploiter.Character:FindFirstChild('Humanoid') ~= nil
+        repeat wait() until Exploiter.Character.PrimaryPart ~= nil
+        if PlayerSettings[A] == true then
+            if PlayerSettings['SpawnSelect'] == 'Custom' then
+                DoFunctions['TPSpawn']()
+            elseif PlayerSettings['SpawnSelect'] == 'SafeSpot' then
+                print('TPSafe')
+                DoFunctions['TPSafe']()
+            end
+        end
+    end)
+    repeat wait() until PlayerSettings[A] == false
+    if con then
+        con:disconnect()
+        con = nil
+    end
+end
+
+DoFunctions['ModAlert'] = function(A)
+    for i,pl in pairs(game.Players:GetChildren()) do
+        local PlRole = pl:GetRoleInGroup(4886976)
+        if table.find(RoleWatch,PlRole) then
+            if PlayerSettings['ModAlert'] == true then
+                NewNotification('['..pl.Name..'] - ('..PlRole..') Is In The Game, TPing to new Server')
+                wait(2)
+                ChangeServer()
+                break
+            else
+                NewNotification('['..pl.Name..'] - ('..PlRole..') Is In The Game, Disable script to not get caught')
+            end
+        end
+    end
+end
+DoFunctions['AnchorCharacter'] = function(A)
+    if Exploiter.Character and Exploiter.Character.PrimaryPart then
+        Exploiter.Character.PrimaryPart.Anchored = true
+    end
+    repeat wait() until PlayerSettings[A] == false
+    if Exploiter.Character and Exploiter.Character.PrimaryPart then
+        Exploiter.Character.PrimaryPart.Anchored = false
+    end
+end
+
+for i,v in pairs(GuiSettings.Teleports.Order) do
+    DoFunctions[v] = function()
+        if v == 'Brawl' then
+
+        else
+            if PlayerData.ownedAreas[v] == true then
+                coroutine.resume(coroutine.create(function()
+                    SetCurrentArea:FireServer(v)
+                end))
+            end
+            Exploiter.Character:SetPrimaryPartCFrame(workspace.Areas:FindFirstChild(v).Portals.ArrivalPad.Value.CFrame * CFrame.new(0,Exploiter.Character.Humanoid.HipHeight,0))
+            --EffectsMod.teleportToCFrame(workspace.Areas:FindFirstChild(v).Portals.ArrivalPad.Value.CFrame + Vector3.new(0,math.max(2,Exploiter.Character.Humanoid.HipHeight),0),true)
+        end
+    end
+end
+
+DoFunctions['BindActivate'] = function(a,b)
+    if PlayerSettings[b] ~= nil and GuiReturn['Toggle_'..b] then
+        coroutine.resume(coroutine.create(function()
+            if ExploitSettings['Counter_'..b] and PlayerSettings[ExploitSettings['Counter_'..b]] == true then
+                local st = GuiReturn['Toggle_'..ExploitSettings['Counter_'..b]]
+                st['Set'](false)
+            end
+        end))
+        local opp 
+        if PlayerSettings[b] == true then opp = false elseif PlayerSettings[b] == false then opp = true end
+        GuiReturn['Toggle_'..b]['Set'](opp)
+    end
+end
+
+DoFunctions['PrintUpdates'] = function()
+    print('Version: '..Version..' - Latest Updates')
+    for i,v in pairs(UpdateNotes['Version '..Version]) do
+        if i ~= 'Settings' then
+            print(' ['..i..']')
+            for i2,v2 in pairs(v) do
+                if v2 ~= '' and v2 ~= ' 'then
+                    print('     '..v2..';')
+                else
+                    print(' ')
+                end
+            end
+        end
+    end
+    print('When script is Reloaded//ReExecuted, Update Window will not be visible anymore')
+end
+
+-----------------------------
+
+GuiSettings.Pets.SelectStar.List = AllStars
+GuiSettings.Pets.SavePets.List = AllPets
+GuiSettings.Pets.SavePets.Colors = PetColors
+GuiSettings.Pets.SellPets.List = AllRarities
+GuiSettings.Pets.SellPets.Colors = RarityColors
+GuiSettings.Pets.SaveEvolved.List = AllEvolves
+
+------------------------------------------ GUI CREATION
+
+library.detailslist = Detailist
+
+library.options.underlinecolor = 'rainbow'
+library.PlayerSettings = PlayerSettings
+library.GuiReturn = GuiReturn
+library.DoFunctions = DoFunctions
+library.linked = linked
+library.GuiSettings = GuiSettings
+library.ExploitSettings = ExploitSettings
+
+library.Version = Version or false
+library.CanSave = true
+
+library.FindFile({'AbsolutionismHub','Games','AnimeLiftingSimulator',tostring(Exploiter.userId)..'.dat'})
+library.MakeSettings()
+library.SetUp()
+----------------------Final Touches after Loading
+coroutine.resume(coroutine.create(function()
+    for i,pl in pairs(game.Players:GetChildren()) do
+        if pl then
+            local PlRole = pl:GetRoleInGroup(4886976)
+            if table.find(RoleWatch,PlRole) then
+                if PlayerSettings['ModAlert'] == true then
+                    NewNotification('['..pl.Name..'] - ('..PlRole..') Is In The Game, TPing to new Server')
+                    wait(2)
+                    ChangeServer()
+                else
+                    NewNotification('['..pl.Name..'] - ('..PlRole..') Is In The Game, Disable script to not get caught')
+                end
+            end
+        end
+    end
+end))
+
+
+
+library.makeplist = false
+
+library.Ready()
+
+end
