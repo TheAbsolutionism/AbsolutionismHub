@@ -6,6 +6,11 @@ local HubUsage = {
         ['Load'] = '';
         ['Deprecated'] = false;
     };
+    ['3182833087'] = {
+        ['GameName'] = 'Anime Something Simulator';
+        ['Load'] = '';
+        ['Deprecated'] = true;
+    };
   };
 };
 return HubUsage;
