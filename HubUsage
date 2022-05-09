@@ -4,7 +4,7 @@ local HubUsage = {
     ['3182833086'] = {
         ['GameName'] = 'Anime Lifting Simulator';
         ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator';
-        ['Deprecated'] = true;
+        ['Deprecated'] = false;
     };
     ['3182833087'] = {
         ['GameName'] = 'Anime Something Simulator';
