@@ -6,11 +6,6 @@ local HubUsage = {
         ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator';
         ['Deprecated'] = false;
     };
-    ['3182833087'] = {
-        ['GameName'] = 'Anime Something Simulator';
-        ['Load'] = '';
-        ['Deprecated'] = true;
-    };
   };
 };
 return HubUsage;
