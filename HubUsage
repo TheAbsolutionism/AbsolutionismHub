@@ -1,11 +1,26 @@
 local HubUsage = {
-  ['Version'] = '[ALPHA]';
-  ['Games'] = {
-    ['3182833086'] = {
-        ['GameName'] = 'Anime Lifting Simulator';
-        ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator';
-        ['Deprecated'] = false;
+    ['Version'] = '[ALPHA]';
+    ['Games'] = {
+        ['3182833086'] = {
+            ['GameName'] = 'Anime Lifting Simulator';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator';
+            ['Deprecated'] = false;
+        };
+        ['2911841210'] = {
+            ['GameName'] = 'Ultimate Army Tycoon';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/UltimateArmyTycoon';
+            ['Deprecated'] = true;
+        };
+        ['1348402608'] = {
+            ['GameName'] = 'Anime Fighting Simulator';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeFightingSimulator';
+            ['Deprecated'] = true;
+        };
+        ['2411591707'] = {
+            ['GameName'] = 'A Heros Destiny';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AHerosDestiny';
+            ['Deprecated'] = true;
+        };
     };
-  };
 };
 return HubUsage;
