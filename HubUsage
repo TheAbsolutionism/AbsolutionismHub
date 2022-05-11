@@ -5,6 +5,7 @@ local HubUsage = {
             ['GameName'] = 'Anime Lifting Simulator';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator';
             ['Deprecated'] = false;
+            ['Testing'] = true;
         };
         ['2911841210'] = {
             ['GameName'] = 'Ultimate Army Tycoon';
