@@ -5,7 +5,6 @@ local HubUsage = {
             ['GameName'] = 'Anime Lifting Simulator';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator';
             ['Deprecated'] = false;
-            ['Testing'] = true;
         };
         ['2911841210'] = {
             ['GameName'] = 'Ultimate Army Tycoon';
@@ -21,6 +20,11 @@ local HubUsage = {
             ['GameName'] = 'A Heros Destiny';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AHerosDestiny';
             ['Deprecated'] = true;
+        };
+        ['3412390892'] = {
+            ['GameName'] = 'Anime Impact Simulator';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeImpactSimulator';
+            ['Deprecated'] = false;
         };
     };
 };
