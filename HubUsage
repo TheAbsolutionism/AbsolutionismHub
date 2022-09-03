@@ -26,6 +26,11 @@ local HubUsage = {
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeImpactSimulator';
             ['Deprecated'] = false;
         };
+        ['3739615406'] = {
+            ['GameName'] = 'Farm Factory Tycoon';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/FarmFactoryTycoon';
+            ['Deprecated'] = false;
+        };
     };
 };
 return HubUsage;
