@@ -31,6 +31,11 @@ local HubUsage = {
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/FarmFactoryTycoon';
             ['Deprecated'] = false;
         };
+        ['3827737804'] = {
+            ['GameName'] = 'One Punch Fighters';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/OnePunchFighters';
+            ['Deprecated'] = false;
+        };
     };
 };
 return HubUsage;
