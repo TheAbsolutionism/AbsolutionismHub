@@ -35,7 +35,6 @@ local HubUsage = {
             ['GameName'] = 'One Punch Fighters';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/OnePunchFighters';
             ['Deprecated'] = false;
-            ['Testing'] = false;
         };
     };
 };
