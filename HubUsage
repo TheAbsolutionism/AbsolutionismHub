@@ -14,11 +14,13 @@ local HubUsage = {
         ['1348402608'] = {
             ['GameName'] = 'Anime Fighting Simulator';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeFightingSimulator';
+            ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/AnimeFightingSimulator';
             ['Deprecated'] = true;
         };
         ['2411591707'] = {
             ['GameName'] = 'A Heros Destiny';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AHerosDestiny';
+            ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/AHerosDestiny';
             ['Deprecated'] = true;
         };
         ['3412390892'] = {
@@ -34,6 +36,7 @@ local HubUsage = {
         ['3827737804'] = {
             ['GameName'] = 'One Punch Fighters';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/OnePunchFighters';
+            ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/OnePunchFighters';
             ['Deprecated'] = false;
         };
     };
