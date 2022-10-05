@@ -1,5 +1,5 @@
 local HubUsage = {
-    ['Version'] = '[ALPHA]';
+    ['Version'] = '1.0.0';
     ['Games'] = {
         ['3182833086'] = {
             ['GameName'] = 'Anime Lifting Simulator';
