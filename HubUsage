@@ -39,6 +39,11 @@ local HubUsage = {
             ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/OnePunchFighters';
             ['Deprecated'] = false;
         };
+        ['4055984814'] = {
+            ['GameName'] = 'Monkey Tycoon';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/MonkeyTycoon';
+            ['Deprecated'] = false;
+        };
     };
 };
 return HubUsage;
