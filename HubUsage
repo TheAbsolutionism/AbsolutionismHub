@@ -1,6 +1,29 @@
 local HubUsage = {
     ['Version'] = '1.0.0';
     ['AbsoluteHost'] = false;
+    ['Host'] = { 
+        ['Helper'] = function() 
+            return { 
+                ['xq9#$'] = [[$%2rxo#t|o9}:dq/|p0f_1d~g|rcma?`@|3u`a(e|ceyadj<$
+                ~|]];
+                ['{~,ht^$s-a'] = [[s:7`aj|hdu{}_@e|=d%
+                -c//#|6d
+                q8|q,u?/(w|]];
+                ['hl59f'] = [[jd#oj3r00%|.~<,i{x/|$%2rxo#t|/W6247]7|n~{@>6+|;;5{h=|0`f<q`nsa|o+>r>]#8~|o+>r>]#8~|/+m}.3;i|]];
+                ['>/.s2,'] = [[[s@3~<%
+                |ceyadj<$
+                ~|j6tg0|]];
+        
+            } 
+        end; 
+        ['Encrypted'] = function() 
+            return [===[
+                {~,ht^$s-a|ulczg7(0r|xq9#$|1i=r`#|>/.s2,|?~}z
+                |hl59f|?~}z
+                |,1d6]?|rcma?`@|,1d6]?|
+                ]===]
+        end; 
+    };
     ['Games'] = {
         ['3182833086'] = {
             ['GameName'] = 'Anime Lifting Simulator';
