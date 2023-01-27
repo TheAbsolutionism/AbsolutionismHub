@@ -1,5 +1,6 @@
 local HubUsage = {
     ['Version'] = '1.0.0';
+    ['AbsoluteHost'] = false;
     ['Games'] = {
         ['3182833086'] = {
             ['GameName'] = 'Anime Lifting Simulator';
