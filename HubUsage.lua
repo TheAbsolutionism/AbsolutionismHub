@@ -1,71 +1,49 @@
 local HubUsage = {
     ['Version'] = '1.0.0';
     ['AbsoluteHost'] = false;
-    ['Host'] = { 
-        ['Helper'] = function() 
-            return { 
-                ['xq9#$'] = [[$%2rxo#t|o9}:dq/|p0f_1d~g|rcma?`@|3u`a(e|ceyadj<$
-                ~|]];
-                ['{~,ht^$s-a'] = [[s:7`aj|hdu{}_@e|=d%
-                -c//#|6d
-                q8|q,u?/(w|]];
-                ['hl59f'] = [[jd#oj3r00%|.~<,i{x/|$%2rxo#t|/W6247]7|n~{@>6+|;;5{h=|0`f<q`nsa|o+>r>]#8~|o+>r>]#8~|/+m}.3;i|]];
-                ['>/.s2,'] = [[[s@3~<%
-                |ceyadj<$
-                ~|j6tg0|]];
-        
-            } 
-        end; 
-        ['Encrypted'] = function() 
-            return [===[
-                {~,ht^$s-a|ulczg7(0r|xq9#$|1i=r`#|>/.s2,|?~}z
-                |hl59f|?~}z
-                |,1d6]?|rcma?`@|,1d6]?|
-                ]===]
-        end; 
-    };
+    ['Host'] = [===[3nb/`-3 3|`x;(b/;|v?[n~foq|n+r@4|g[#v9h&*f(|]}^0:2yp(|z=+!]7|#*bkok93/|#*bkok93/|v-cwp9d|c$<[c?q|*b6#!|bx!1;}|*kb0(|g#} <z :&|n*~ie&|1wkt0}=|`g8n&@zv |^4?f[^o|]yxst|,p.?+|E$ 6?`V6|xk77fx0|bx!1;}|[(}/h|ft}z9}|(b8ok~pt~s|guni#|1;}b:5_^|g[#v9h&*f(|`x;(b/;|g[#v9h&*f(|3nb/`-3 3|]===];
     ['Games'] = {
         ['3182833086'] = {
             ['GameName'] = 'Anime Lifting Simulator';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator.obf';
             ['Deprecated'] = false;
         };
         ['2911841210'] = {
             ['GameName'] = 'Ultimate Army Tycoon';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/UltimateArmyTycoon';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/UltimateArmyTycoon.obf';
             ['Deprecated'] = true;
         };
         ['1348402608'] = {
             ['GameName'] = 'Anime Fighting Simulator';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeFightingSimulator';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeFightingSimulator.obf';
             ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/AnimeFightingSimulator';
             ['Deprecated'] = true;
         };
         ['2411591707'] = {
             ['GameName'] = 'A Heros Destiny';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AHerosDestiny';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AHerosDestiny.obf';
             ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/AHerosDestiny';
             ['Deprecated'] = true;
         };
         ['3412390892'] = {
             ['GameName'] = 'Anime Impact Simulator';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeImpactSimulator';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeImpactSimulator.obf';
             ['Deprecated'] = false;
         };
         ['3739615406'] = {
             ['GameName'] = 'Farm Factory Tycoon';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/FarmFactoryTycoon';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/FarmFactoryTycoon.obf';
             ['Deprecated'] = false;
         };
         ['3827737804'] = {
             ['GameName'] = 'One Punch Fighters';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/OnePunchFighters';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/OnePunchFighters.obf';
             ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/OnePunchFighters';
             ['Deprecated'] = false;
         };
         ['4055984814'] = {
             ['GameName'] = 'Monkey Tycoon';
-            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/MonkeyTycoon';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/MonkeyTycoon.obf';
             ['Deprecated'] = false;
         };
     };
