@@ -46,6 +46,11 @@ local HubUsage = {
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/MonkeyTycoon.obf';
             ['Deprecated'] = false;
         };
+        ['3875092591'] = {
+            ['GameName'] = 'Control Army';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/ControlArmy.obf';
+            ['Deprecated'] = false;
+        };
     };
 };
 return HubUsage;
