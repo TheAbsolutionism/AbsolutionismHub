@@ -51,6 +51,11 @@ local HubUsage = {
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/ControlArmy.obf';
             ['Deprecated'] = false;
         };
+        ['3231833678'] = {
+            ['GameName'] = 'Chocolate Factory Tycoon';
+            ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/ChocolateFactoryTycoon';
+            ['Deprecated'] = false;
+        };
     };
 };
 return HubUsage;
