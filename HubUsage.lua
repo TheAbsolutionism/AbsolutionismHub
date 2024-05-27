@@ -6,7 +6,7 @@ local HubUsage = {
         ['3182833086'] = {
             ['GameName'] = 'Anime Lifting Simulator';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeLiftingSimulator.obf';
-            ['Deprecated'] = false;
+            ['Deprecated'] = true;
         };
         ['2911841210'] = {
             ['GameName'] = 'Ultimate Army Tycoon';
@@ -28,33 +28,33 @@ local HubUsage = {
         ['3412390892'] = {
             ['GameName'] = 'Anime Impact Simulator';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/AnimeImpactSimulator.obf';
-            ['Deprecated'] = false;
+            ['Deprecated'] = true;
         };
         ['3739615406'] = {
             ['GameName'] = 'Farm Factory Tycoon';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/FarmFactoryTycoon.obf';
-            ['Deprecated'] = false;
+            ['Deprecated'] = true;
         };
         ['3827737804'] = {
             ['GameName'] = 'One Punch Fighters';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/OnePunchFighters.obf';
             ['Logs'] = 'https://raw.githubusercontent.com/TheAbsolutionism/Hub-ChangeLogs/main/OnePunchFighters';
-            ['Deprecated'] = false;
+            ['Deprecated'] = true;
         };
         ['4055984814'] = {
             ['GameName'] = 'Monkey Tycoon';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/MonkeyTycoon.obf';
-            ['Deprecated'] = false;
+            ['Deprecated'] = true;
         };
         ['3875092591'] = {
             ['GameName'] = 'Control Army';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/ControlArmy.obf';
-            ['Deprecated'] = false;
+            ['Deprecated'] = true;
         };
         ['3231833678'] = {
             ['GameName'] = 'Chocolate Factory Tycoon';
             ['Load'] = 'https://raw.githubusercontent.com/TheAbsolutionism/AbsolutionismHub/main/ChocolateFactoryTycoon';
-            ['Deprecated'] = false;
+            ['Deprecated'] = true;
         };
     };
 };
